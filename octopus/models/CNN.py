@@ -49,20 +49,22 @@ def _calc_output_size_from_dict(input_size, conv_dict):
     return output_size
 
 
-def _build_cnn_sequence(input_size, conv_dicts, batch_norm, activation_func, pool_dicts, pool_class):
-    # define convolutional layers
+def _build_cnn2d_sequence(input_size, conv_dicts, batch_norm, activation_func, pool_dicts, pool_class):
     sequence = []
+
+    # track sizes after each layer
     layer_input_size = input_size
     layer_output_size = None
-    print('start',layer_input_size, layer_output_size)
     for i, conv_dict in enumerate(conv_dicts):  # create a layer for each parameter dictionary
+        # print('start' + str(i + 1), layer_input_size, layer_output_size)
 
         # convolution
         layer_name = 'conv' + str(i + 1)
         conv_tuple = (layer_name, nn.Conv2d(**conv_dict))
         sequence.append(conv_tuple)
         layer_output_size = _calc_output_size_from_dict(layer_input_size, conv_dict)
-        print('conv',layer_input_size, layer_output_size)
+        # print('conv' + str(i + 1), layer_input_size, layer_output_size)
+
         # batch normalization
         if batch_norm:
             layer_name = 'bn' + str(i + 1)
@@ -83,9 +85,10 @@ def _build_cnn_sequence(input_size, conv_dicts, batch_norm, activation_func, poo
             sequence.append(pool_tuple)
 
             # update input and output sizes based on pooling layer
-            layer_input_size = layer_output_size
-            layer_output_size = _calc_output_size_from_dict(layer_input_size, pool_dict)
-            print('pool',layer_input_size, layer_output_size)
+            layer_output_size = _calc_output_size_from_dict(layer_output_size, pool_dict)
+            # print('pool' + str(i + 1), layer_input_size, layer_output_size)
+            layer_input_size = layer_output_size  # becomes layer_input_size for next cnn layer
+            # print('pool' + str(i + 1), layer_input_size, layer_output_size)
 
     return sequence, layer_output_size
 
@@ -102,8 +105,9 @@ class CNN2d(nn.Module):
     def __init__(self, input_size, output_size, activation_func, pool_class, batch_norm, conv_dicts, pool_dicts):
         super(CNN2d, self).__init__()
 
-        cnn_sequence, cnn_output_size = _build_cnn_sequence(input_size, conv_dicts, batch_norm, activation_func,
-                                                            pool_dicts, pool_class)
+        # define cnn layers
+        cnn_sequence, cnn_output_size = _build_cnn2d_sequence(input_size, conv_dicts, batch_norm, activation_func,
+                                                              pool_dicts, pool_class)
         self.cnn_layers = nn.Sequential(OrderedDict(cnn_sequence))
 
         # define linear layers
@@ -112,5 +116,5 @@ class CNN2d(nn.Module):
 
     def forward(self, x):
         x = self.cnn_layers(x)
-        x = self.linear_layers
+        x = self.linear_layers(x)
         return x

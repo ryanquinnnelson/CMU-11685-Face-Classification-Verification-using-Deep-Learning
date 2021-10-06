@@ -38,7 +38,7 @@ def test__calc_output_size_from_dict():
     assert actual == expected
 
 
-def test__build_cnn_sequence_1():  # one conv, no batch norm, no pooling
+def test__build_cnn2d_sequence_1():  # one conv, no batch norm, no pooling
 
     conv_dicts = []
     conv_dict = {
@@ -60,8 +60,8 @@ def test__build_cnn_sequence_1():  # one conv, no batch norm, no pooling
     input_size = 64
     expected_output_size = 62
 
-    actual_sequence, actual_output_size = cn._build_cnn_sequence(input_size, conv_dicts, batch_norm, activation_func,
-                                                                 pool_dicts, pool_class)
+    actual_sequence, actual_output_size = cn._build_cnn2d_sequence(input_size, conv_dicts, batch_norm, activation_func,
+                                                                   pool_dicts, pool_class)
     assert actual_output_size == expected_output_size
 
     # check actual sequence
@@ -84,7 +84,7 @@ def test__build_cnn_sequence_1():  # one conv, no batch norm, no pooling
     assert actual_str_2 == expected_str_2
 
 
-def test__build_cnn_sequence_2():  # one conv, batch norm, pooling
+def test__build_cnn2d_sequence_2():  # one conv, batch norm, pooling
     conv_dicts = []
     conv_dict = {
         'in_channels': 3,
@@ -113,8 +113,8 @@ def test__build_cnn_sequence_2():  # one conv, batch norm, pooling
     input_size = 64
     expected_output_size = 31
 
-    actual_sequence, actual_output_size = cn._build_cnn_sequence(input_size, conv_dicts, batch_norm, activation_func,
-                                                                 pool_dicts, pool_class)
+    actual_sequence, actual_output_size = cn._build_cnn2d_sequence(input_size, conv_dicts, batch_norm, activation_func,
+                                                                   pool_dicts, pool_class)
 
     assert actual_output_size == expected_output_size
     print(actual_sequence)
@@ -147,3 +147,81 @@ def test__build_cnn_sequence_2():  # one conv, batch norm, pooling
     actual_str_4 = str(actual_sequence[3][1])
     assert actual_name_4 == expected_name_4
     assert actual_str_4 == expected_str_4
+
+
+def test_CNN__init___one_cnn_layer():
+    conv_dicts = []
+    conv_dict = {
+        'in_channels': 3,
+        'out_channels': 4,
+        'kernel_size': 3,
+        'stride': 1,
+        'padding': 0,
+        'dilation': 1
+
+    }
+    conv_dicts.append(conv_dict)
+
+    pool_dicts = []
+    pool_dict = {
+        'kernel_size': 2,
+        'stride': 2,
+        'padding': 0,
+        'dilation': 1
+    }
+    pool_dicts.append(pool_dict)
+
+    pool_class = 'MaxPool2d'
+    activation_func = 'ReLU'
+    batch_norm = True
+
+    input_size = 64
+    output_size = 4000
+
+    cnn = cn.CNN2d(input_size, output_size, activation_func, pool_class, batch_norm, conv_dicts, pool_dicts)
+    print(cnn)
+
+
+def test_CNN__init___two_cnn_layer():
+    conv_dicts = []
+    conv_dict = {
+        'in_channels': 3,
+        'out_channels': 7,
+        'kernel_size': 3,
+        'stride': 1,
+        'padding': 1,
+        'dilation': 1
+
+    }
+    conv_dicts.append(conv_dict)
+    conv_dict2 = {
+        'in_channels': 7,
+        'out_channels': 4,
+        'kernel_size': 3,
+        'stride': 1,
+        'padding': 0,
+        'dilation': 1
+
+    }
+    conv_dicts.append(conv_dict2)
+
+    pool_dicts = []
+    pool_dict = {
+        'kernel_size': 2,
+        'stride': 2,
+        'padding': 0,
+        'dilation': 1
+    }
+    pool_dicts.append(pool_dict)
+    pool_dicts.append(pool_dict)
+
+    pool_class = 'MaxPool2d'
+    activation_func = 'ReLU'
+    batch_norm = True
+
+    input_size = 64
+    output_size = 4000
+
+    cnn = cn.CNN2d(input_size, output_size, activation_func, pool_class, batch_norm, conv_dicts, pool_dicts)
+    print(cnn)
+    
