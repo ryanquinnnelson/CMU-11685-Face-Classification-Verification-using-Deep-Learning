@@ -54,6 +54,7 @@ def _build_cnn_sequence(input_size, conv_dicts, batch_norm, activation_func, poo
     sequence = []
     layer_input_size = input_size
     layer_output_size = None
+    print('start',layer_input_size, layer_output_size)
     for i, conv_dict in enumerate(conv_dicts):  # create a layer for each parameter dictionary
 
         # convolution
@@ -61,7 +62,7 @@ def _build_cnn_sequence(input_size, conv_dicts, batch_norm, activation_func, poo
         conv_tuple = (layer_name, nn.Conv2d(**conv_dict))
         sequence.append(conv_tuple)
         layer_output_size = _calc_output_size_from_dict(layer_input_size, conv_dict)
-
+        print('conv',layer_input_size, layer_output_size)
         # batch normalization
         if batch_norm:
             layer_name = 'bn' + str(i + 1)
@@ -74,7 +75,7 @@ def _build_cnn_sequence(input_size, conv_dicts, batch_norm, activation_func, poo
         sequence.append(activation_tuple)
 
         # pooling layer
-        if len(pool_dicts) < i:
+        if len(pool_dicts) > i:
             pool_dict = pool_dicts[i]
             layer_name = 'pool' + str(i + 1)
             layer_pool_class = _get_pool_class(pool_class)
@@ -84,6 +85,7 @@ def _build_cnn_sequence(input_size, conv_dicts, batch_norm, activation_func, poo
             # update input and output sizes based on pooling layer
             layer_input_size = layer_output_size
             layer_output_size = _calc_output_size_from_dict(layer_input_size, pool_dict)
+            print('pool',layer_input_size, layer_output_size)
 
     return sequence, layer_output_size
 
