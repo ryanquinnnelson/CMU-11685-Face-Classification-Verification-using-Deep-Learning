@@ -33,7 +33,7 @@ def _convert_dict_to_dicts(d):
     return layer_dicts
 
 
-class ModelHandler:
+class CnnHandler:
     def __init__(self,
                  model_type, input_size, output_size, activation_func, batch_norm, conv_dict, pool_class, pool_dict):
         self.model_type = model_type

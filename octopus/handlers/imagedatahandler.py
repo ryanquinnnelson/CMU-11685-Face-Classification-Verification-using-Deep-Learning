@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader
 from octopus.utilities import utilities
 
 
-class DataHandler:
+class ImageDataHandler:
 
     def __init__(self,
                  run_name,

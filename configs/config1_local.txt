@@ -5,7 +5,7 @@ run_name = Run-07
 debug_file = /Users/ryanqnelson/Desktop/test/debug.log
 
 [kaggle]
-download_from_kaggle = True
+download_from_kaggle = False
 kaggle_dir = /Users/ryanqnelson/Desktop/test/.kaggle
 content_dir = /Users/ryanqnelson/Desktop/test/content/
 token_file = /Users/ryanqnelson/Desktop/kaggle.json
@@ -15,16 +15,16 @@ delete_zipfiles_after_unzipping = True
 [wandb]
 wandb_dir = /Users/ryanqnelson/Desktop/test
 entity = ryanquinnnelson
-project = CMU-11685-HW1P2-octopus-4
-notes = Simple MLP
-tags = MLP,octopus
+project = CMU-11685-HW2P2A-octopus
+notes = CNN Face Classification
+tags = CNN,octopus
 
 [stats]
 # metric for comparison against previous runs to check whether early stopping should occur
-comparison_metric=val_loss
+comparison_metric=val_acc
 
 # if a lower value is better for the metric, set comparison_best_is_max to False
-comparison_best_is_max=False
+comparison_best_is_max=True
 
 # how many epochs to allow the current model to perform worse than the best model for this metric before stopping
 comparison_patience=20
@@ -33,7 +33,7 @@ comparison_patience=20
 val_metric_name=val_acc
 
 [data]
-data_dir = /Users/ryanqnelson/Desktop/test/content/competitions/hw1p2-toy-problem
+data_dir = /Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification
 output_dir = /Users/ryanqnelson/Desktop/test/output
 train_data_file=toy_train_data.npy
 train_label_file=toy_train_label.npy
@@ -50,11 +50,9 @@ input_size=64
 output_size=4000
 batch_norm=True
 activation_func=ReLU
-conv_kwargs=1.in_channels=3,1.out_channels=4,1.kernel_size=3,1.stride=1,1.padding=0,1.dilation=1
+conv_kwargs=1.in_channels=3,1.out_channels=4,1.kernel_size=3,1.stride=1,1.padding=0,1.dilation=1,2.in_channels=4,2.out_channels=4,2.kernel_size=3,2.stride=1,2.padding=0,2.dilation=1
 pool_class=MaxPool2d
-pool_kwargs=1.kernel_size=2,1.stride=2,1.padding=0,1.dilation=1
-
-
+pool_kwargs=1.kernel_size=2,1.stride=2,1.padding=0,1.dilation=1,2.kernel_size=2,2.stride=2,2.padding=0,2.dilation=1
 
 
 
@@ -65,6 +63,8 @@ load_from_checkpoint=False
 
 # if loading from a checkpoint, supply a fully qualified filename for the checkpoint file
 checkpoint_file =  None
+
+
 
 [hyperparameters]
 dataloader_num_workers=8

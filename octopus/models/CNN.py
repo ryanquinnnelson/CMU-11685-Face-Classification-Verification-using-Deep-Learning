@@ -1,7 +1,10 @@
 """
 Defines all standard CNNs octopus can generate.
 """
+
 __author__ = 'ryanquinnnelson'
+import logging
+
 
 import torch.nn as nn
 from collections import OrderedDict
@@ -55,6 +58,7 @@ def _build_cnn2d_sequence(input_size, activation_func, batch_norm, conv_dicts, p
     # track sizes after each layer
     layer_input_size = input_size
     layer_output_size = None
+    out_channels = None
     for i, conv_dict in enumerate(conv_dicts):  # create a layer for each parameter dictionary
         # print('start' + str(i + 1), layer_input_size, layer_output_size)
 
@@ -63,7 +67,9 @@ def _build_cnn2d_sequence(input_size, activation_func, batch_norm, conv_dicts, p
         conv_tuple = (layer_name, nn.Conv2d(**conv_dict))
         sequence.append(conv_tuple)
         layer_output_size = _calc_output_size_from_dict(layer_input_size, conv_dict)
+        out_channels = conv_dict['out_channels']
         # print('conv' + str(i + 1), layer_input_size, layer_output_size)
+        logging.info(f'{layer_name}:[{layer_input_size},{layer_output_size}]')
 
         # batch normalization
         if batch_norm:
@@ -85,21 +91,23 @@ def _build_cnn2d_sequence(input_size, activation_func, batch_norm, conv_dicts, p
             sequence.append(pool_tuple)
 
             # update input and output sizes based on pooling layer
-            layer_output_size = _calc_output_size_from_dict(layer_output_size, pool_dict)
+            layer_input_size = layer_output_size
+            layer_output_size = _calc_output_size_from_dict(layer_input_size, pool_dict)
+            logging.info(f'{layer_name}:[{layer_input_size},{layer_output_size}]')
             # print('pool' + str(i + 1), layer_input_size, layer_output_size)
             layer_input_size = layer_output_size  # becomes layer_input_size for next cnn layer
             # print('pool' + str(i + 1), layer_input_size, layer_output_size)
 
-    return sequence, layer_output_size
+    return sequence, layer_output_size, out_channels
 
 
 # Future - add desired number of linear layers
-def _build_linear_sequence(input_size, output_size):
+def _build_linear_sequence(input_size, output_size, out_channels):
     # add flattening as first layer
     sequence = [('flat', nn.Flatten())]
 
     # add one or more linear layers
-    sequence.append(('lin', nn.Linear(input_size, output_size)))
+    sequence.append(('lin', nn.Linear(input_size * input_size * out_channels, output_size)))
 
     # add softmax as final activation
     sequence.append(('soft', nn.Softmax()))
@@ -111,12 +119,12 @@ class CNN2d(nn.Module):
         super(CNN2d, self).__init__()
 
         # define cnn layers
-        cnn_sequence, cnn_output_size = _build_cnn2d_sequence(input_size, activation_func, batch_norm, conv_dicts,
+        cnn_sequence, cnn_output_size, cnn_out_channels = _build_cnn2d_sequence(input_size, activation_func, batch_norm, conv_dicts,
                                                               pool_class, pool_dicts)
         self.cnn_layers = nn.Sequential(OrderedDict(cnn_sequence))
 
         # define linear layers
-        linear_sequence = _build_linear_sequence(cnn_output_size, output_size)
+        linear_sequence = _build_linear_sequence(cnn_output_size, output_size, cnn_out_channels)
         self.linear_layers = nn.Sequential(OrderedDict(linear_sequence))
 
     def forward(self, x):

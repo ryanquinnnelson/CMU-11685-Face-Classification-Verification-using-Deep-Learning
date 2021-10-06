@@ -16,8 +16,8 @@ from octopus.connectors.kaggleconnector import KaggleConnector
 from octopus.connectors.wandbconnector import WandbConnector
 from octopus.handlers.checkpointhandler import CheckpointHandler
 from octopus.handlers.devicehandler import DeviceHandler
-from octopus.handlers.datahandler import DataHandler
-from octopus.handlers.modelhandler import ModelHandler
+from octopus.handlers.imagedatahandler import ImageDataHandler
+from octopus.handlers.cnnhandler import CnnHandler
 from octopus.handlers.criterionhandler import CriterionHandler
 from octopus.handlers.optimizerhandler import OptimizerHandler
 from octopus.handlers.schedulerhandler import SchedulerHandler
@@ -76,32 +76,32 @@ class Octopus:
             test_label_file = config['data']['test_label_file']
         else:
             test_label_file = None
-        self.datahandler = DataHandler(config['DEFAULT']['run_name'],
-                                       config['data']['data_dir'],
-                                       config['data']['output_dir'],
-                                       config['data']['train_data_file'],
-                                       config['data']['train_label_file'],
-                                       config['data']['val_data_file'],
-                                       config['data']['val_label_file'],
-                                       config['data']['test_data_file'],
-                                       test_label_file,
-                                       config['hyperparameters'].getint('dataloader_batch_size'),
-                                       config['hyperparameters'].getint('dataloader_num_workers'),
-                                       config['hyperparameters'].getboolean('dataloader_pin_memory'),
-                                       _to_float_dict(config['hyperparameters']['dataset_kwargs']))
+        self.datahandler = ImageDataHandler(config['DEFAULT']['run_name'],
+                                            config['data']['data_dir'],
+                                            config['data']['output_dir'],
+                                            config['data']['train_data_file'],
+                                            config['data']['train_label_file'],
+                                            config['data']['val_data_file'],
+                                            config['data']['val_label_file'],
+                                            config['data']['test_data_file'],
+                                            test_label_file,
+                                            config['hyperparameters'].getint('dataloader_batch_size'),
+                                            config['hyperparameters'].getint('dataloader_num_workers'),
+                                            config['hyperparameters'].getboolean('dataloader_pin_memory'),
+                                            _to_float_dict(config['hyperparameters']['dataset_kwargs']))
 
         # device
         self.devicehandler = DeviceHandler()
 
         # model
-        self.modelhandler = ModelHandler(config['model']['model_type'],
-                                         config['model'].getint('input_size'),
-                                         config['model'].getint('output_size'),
-                                         config['model']['activation_func'],
-                                         config['model'].getboolean('batch_norm'),
-                                         _to_int_dict(config['model']['conv_kwargs']),
-                                         config['model']['pool_class'],
-                                         _to_int_dict(config['model']['pool_kwargs']))
+        self.modelhandler = CnnHandler(config['model']['model_type'],
+                                       config['model'].getint('input_size'),
+                                       config['model'].getint('output_size'),
+                                       config['model']['activation_func'],
+                                       config['model'].getboolean('batch_norm'),
+                                       _to_int_dict(config['model']['conv_kwargs']),
+                                       config['model']['pool_class'],
+                                       _to_int_dict(config['model']['pool_kwargs']))
 
         # optimizer
         self.optimizerhandler = OptimizerHandler(config['hyperparameters']['optimizer_type'],
@@ -186,19 +186,19 @@ class Octopus:
         optimizer = self.optimizerhandler.get_optimizer(model)
         scheduler = self.schedulerhandler.get_scheduler(optimizer)
 
-        # load data
-        train_loader, val_loader, test_loader = self.datahandler.load(TrainValDataset,
-                                                                      TrainValDataset,
-                                                                      TestDataset,
-                                                                      self.devicehandler)
-
-        # load phases
-        training = Training(train_loader, loss_func, self.devicehandler)
-        evaluation = Evaluation(val_loader, loss_func, self.devicehandler)
-        testing = Testing(test_loader, self.devicehandler)
-
-        # run epochs
-        self.phasehandler.process_epochs(model, optimizer, scheduler, training, evaluation, testing)
+        # # load data
+        # train_loader, val_loader, test_loader = self.datahandler.load(TrainValDataset,
+        #                                                               TrainValDataset,
+        #                                                               TestDataset,
+        #                                                               self.devicehandler)
+        #
+        # # load phases
+        # training = Training(train_loader, loss_func, self.devicehandler)
+        # evaluation = Evaluation(val_loader, loss_func, self.devicehandler)
+        # testing = Testing(test_loader, self.devicehandler)
+        #
+        # # run epochs
+        # self.phasehandler.process_epochs(model, optimizer, scheduler, training, evaluation, testing)
 
         logging.info('octopus has finished running the pipeline.')
 
