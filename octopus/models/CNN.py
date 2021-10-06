@@ -102,7 +102,7 @@ def _build_linear_sequence(input_size, output_size):
 
 
 class CNN2d(nn.Module):
-    def __init__(self, input_size, output_size, activation_func, pool_class, batch_norm, conv_dicts, pool_dicts):
+    def __init__(self, input_size, output_size, activation_func, batch_norm, conv_dicts, pool_class, pool_dicts):
         super(CNN2d, self).__init__()
 
         # define cnn layers

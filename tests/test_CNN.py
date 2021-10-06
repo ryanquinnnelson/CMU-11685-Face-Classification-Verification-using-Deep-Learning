@@ -178,7 +178,7 @@ def test_CNN__init___one_cnn_layer():
     input_size = 64
     output_size = 4000
 
-    cnn = cn.CNN2d(input_size, output_size, activation_func, pool_class, batch_norm, conv_dicts, pool_dicts)
+    cnn = cn.CNN2d(input_size, output_size, activation_func, batch_norm, conv_dicts, pool_class, pool_dicts)
     print(cnn)
 
 
@@ -222,6 +222,6 @@ def test_CNN__init___two_cnn_layer():
     input_size = 64
     output_size = 4000
 
-    cnn = cn.CNN2d(input_size, output_size, activation_func, pool_class, batch_norm, conv_dicts, pool_dicts)
+    cnn = cn.CNN2d(input_size, output_size, activation_func, batch_norm, conv_dicts, pool_class, pool_dicts)
     print(cnn)
-    
+
