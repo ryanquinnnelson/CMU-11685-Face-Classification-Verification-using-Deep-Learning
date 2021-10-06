@@ -39,17 +39,17 @@ def _calc_output_size(input_size, padding, dilation, kernel_size, stride):
     return output_size
 
 
-def _calc_output_size_from_dict(input_size, conv_dict):
-    padding = conv_dict['padding']
-    dilation = conv_dict['dilation']
-    kernel_size = conv_dict['kernel_size']
-    stride = conv_dict['stride']
+def _calc_output_size_from_dict(input_size, parm_dict):
+    padding = parm_dict['padding']
+    dilation = parm_dict['dilation']
+    kernel_size = parm_dict['kernel_size']
+    stride = parm_dict['stride']
 
     output_size = _calc_output_size(input_size, padding, dilation, kernel_size, stride)
     return output_size
 
 
-def _build_cnn2d_sequence(input_size, conv_dicts, batch_norm, activation_func, pool_dicts, pool_class):
+def _build_cnn2d_sequence(input_size, activation_func, batch_norm, conv_dicts, pool_class, pool_dicts):
     sequence = []
 
     # track sizes after each layer
@@ -93,11 +93,16 @@ def _build_cnn2d_sequence(input_size, conv_dicts, batch_norm, activation_func, p
     return sequence, layer_output_size
 
 
+# Future - add desired number of linear layers
 def _build_linear_sequence(input_size, output_size):
-    sequence = [
-        ('flat', nn.Flatten()),
-        ('lin', nn.Linear(input_size, output_size))
-    ]
+    # add flattening as first layer
+    sequence = [('flat', nn.Flatten())]
+
+    # add one or more linear layers
+    sequence.append(('lin', nn.Linear(input_size, output_size)))
+
+    # add softmax as final activation
+    sequence.append(('soft', nn.Softmax()))
     return sequence
 
 
@@ -106,8 +111,8 @@ class CNN2d(nn.Module):
         super(CNN2d, self).__init__()
 
         # define cnn layers
-        cnn_sequence, cnn_output_size = _build_cnn2d_sequence(input_size, conv_dicts, batch_norm, activation_func,
-                                                              pool_dicts, pool_class)
+        cnn_sequence, cnn_output_size = _build_cnn2d_sequence(input_size, activation_func, batch_norm, conv_dicts,
+                                                              pool_class, pool_dicts)
         self.cnn_layers = nn.Sequential(OrderedDict(cnn_sequence))
 
         # define linear layers

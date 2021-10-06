@@ -29,7 +29,8 @@ class TestDataset:
 
 
 class Evaluation:
-    pass
+    def __init__(self,val_loader, loss_func, devicehandler):
+        pass
 
 
 class OutputFormatter:

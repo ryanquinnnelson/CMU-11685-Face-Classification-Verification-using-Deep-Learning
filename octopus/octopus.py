@@ -11,6 +11,7 @@ import sys
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"  # better error tracking from gpu
 
 # local modules
+from octopus.utilities.utilities import _to_string_list, _to_float_dict, _to_int_dict
 from octopus.connectors.kaggleconnector import KaggleConnector
 from octopus.connectors.wandbconnector import WandbConnector
 from octopus.handlers.checkpointhandler import CheckpointHandler
@@ -51,13 +52,15 @@ class Octopus:
             self.kaggleconnector = None
 
         # wandb
+        # get all hyperparameters from different parts of config
+        hyper_dict = dict(config['hyperparameters']).update(dict(config['model']))
         self.wandbconnector = WandbConnector(config['wandb']['wandb_dir'],
                                              config['wandb']['entity'],
                                              config['DEFAULT']['run_name'],
                                              config['wandb']['project'],
                                              config['wandb']['notes'],
                                              _to_string_list(config['wandb']['tags']),
-                                             dict(config['hyperparameters']))
+                                             hyper_dict)
 
         # checkpoints
         self.checkpointhandler = CheckpointHandler(config['checkpoint']['checkpoint_dir'],
@@ -85,27 +88,28 @@ class Octopus:
                                        config['hyperparameters'].getint('dataloader_batch_size'),
                                        config['hyperparameters'].getint('dataloader_num_workers'),
                                        config['hyperparameters'].getboolean('dataloader_pin_memory'),
-                                       _to_dict(config['hyperparameters']['dataset_kwargs']))
+                                       _to_float_dict(config['hyperparameters']['dataset_kwargs']))
 
         # device
         self.devicehandler = DeviceHandler()
 
         # model
         self.modelhandler = ModelHandler(config['model']['model_type'],
-                                         config['data'].getint('input_size'),
-                                         config['data'].getint('output_size'),
-                                         _to_int_list(config['hyperparameters']['hidden_layer_sizes']),
-                                         config['hyperparameters']['activation_func'],
-                                         config['hyperparameters'].getfloat('dropout_rate'),
-                                         config['hyperparameters'].getboolean('batch_norm'))
+                                         config['model'].getint('input_size'),
+                                         config['model'].getint('output_size'),
+                                         config['model']['activation_func'],
+                                         config['model'].getboolean('batch_norm'),
+                                         _to_int_dict(config['model']['conv_kwargs']),
+                                         config['model']['pool_class'],
+                                         _to_int_dict(config['model']['pool_kwargs']))
 
         # optimizer
         self.optimizerhandler = OptimizerHandler(config['hyperparameters']['optimizer_type'],
-                                                 _to_dict(config['hyperparameters']['optimizer_kwargs']), )
+                                                 _to_float_dict(config['hyperparameters']['optimizer_kwargs']), )
 
         # scheduler
         self.schedulerhandler = SchedulerHandler(config['hyperparameters']['scheduler_type'],
-                                                 _to_dict(config['hyperparameters']['scheduler_kwargs']),
+                                                 _to_float_dict(config['hyperparameters']['scheduler_kwargs']),
                                                  config['hyperparameters']['scheduler_plateau_metric'])
 
         # statshandler
@@ -200,32 +204,6 @@ class Octopus:
 
     def cleanup(self):
         logging.info('octopus shutdown complete.')
-
-
-def _to_dict(s):
-    d = dict()
-
-    pairs = s.split(',')
-    for p in pairs:
-        key, val = p.strip().split('=')
-
-        # try converting the value to a float
-        try:
-            val = float(val)
-        except ValueError:
-            pass  # leave as string
-
-        d[key] = val
-
-    return d
-
-
-def _to_int_list(s):
-    return [int(a) for a in s.strip().split(',')]
-
-
-def _to_string_list(s):
-    return s.strip().split(',')
 
 
 def _setup_logging(debug_file):

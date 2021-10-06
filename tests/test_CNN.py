@@ -60,8 +60,8 @@ def test__build_cnn2d_sequence_1():  # one conv, no batch norm, no pooling
     input_size = 64
     expected_output_size = 62
 
-    actual_sequence, actual_output_size = cn._build_cnn2d_sequence(input_size, conv_dicts, batch_norm, activation_func,
-                                                                   pool_dicts, pool_class)
+    actual_sequence, actual_output_size = cn._build_cnn2d_sequence(input_size, activation_func, batch_norm, conv_dicts,
+                                                                   pool_class, pool_dicts)
     assert actual_output_size == expected_output_size
 
     # check actual sequence
@@ -113,8 +113,8 @@ def test__build_cnn2d_sequence_2():  # one conv, batch norm, pooling
     input_size = 64
     expected_output_size = 31
 
-    actual_sequence, actual_output_size = cn._build_cnn2d_sequence(input_size, conv_dicts, batch_norm, activation_func,
-                                                                   pool_dicts, pool_class)
+    actual_sequence, actual_output_size = cn._build_cnn2d_sequence(input_size, activation_func, batch_norm, conv_dicts,
+                                                                   pool_class, pool_dicts)
 
     assert actual_output_size == expected_output_size
     print(actual_sequence)

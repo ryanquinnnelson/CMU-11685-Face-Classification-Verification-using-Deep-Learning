@@ -41,12 +41,22 @@ val_data_file=toy_val_data.npy
 val_label_file=toy_val_label.npy
 test_data_file=toy_test_data.npy
 
-# input is (2 * context + 1) * 40 for this dataset
-input_size=200
-output_size=71
+
+
 
 [model]
-model_type=MLP
+model_type=CNN2d
+input_size=64
+output_size=4000
+batch_norm=True
+activation_func=ReLU
+conv_kwargs=1.in_channels=3,1.out_channels=4,1.kernel_size=3,1.stride=1,1.padding=0,1.dilation=1
+pool_class=MaxPool2d
+pool_kwargs=1.kernel_size=2,1.stride=2,1.padding=0,1.dilation=1
+
+
+
+
 
 [checkpoint]
 checkpoint_dir = /Users/ryanqnelson/Desktop/test/checkpoints
@@ -64,10 +74,6 @@ dataloader_batch_size=128
 # keyword arguments to be supplied to Dataset subclasses when loading data
 dataset_kwargs=context=2
 num_epochs = 3
-hidden_layer_sizes = 128
-dropout_rate=0.0
-batch_norm=False
-activation_func=ReLU
 criterion_type=CrossEntropyLoss
 optimizer_type=Adam
 
