@@ -19,7 +19,7 @@ class DataLoaderHandler:
                  batch_size,
                  num_workers,
                  pin_memory):
-        logging.info('Initializing dataloader handler...')
+        logging.info('Initializing dataloader handling...')
         # parameters
         self.batch_size = batch_size
         self.num_workers = num_workers

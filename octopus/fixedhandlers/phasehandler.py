@@ -9,12 +9,12 @@ import time
 
 class PhaseHandler:
 
-    def __init__(self, first_epoch, num_epochs, outputhandler, devicehandler, statshandler, checkpointhandler,
+    def __init__(self, num_epochs, outputhandler, devicehandler, statshandler, checkpointhandler,
                  schedulerhandler, wandbconnector, formatter, load_from_checkpoint, checkpoint_file=None):
-        logging.info('Initializing phase handler...')
+        logging.info('Initializing phase handling...')
         self.load_from_checkpoint = load_from_checkpoint
         self.checkpoint_file = checkpoint_file
-        self.first_epoch = first_epoch
+        self.first_epoch = 1
         self.num_epochs = num_epochs
 
         # handlers

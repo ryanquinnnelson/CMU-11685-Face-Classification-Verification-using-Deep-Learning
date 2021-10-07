@@ -13,7 +13,7 @@ from octopus.utilities import utilities
 
 class CheckpointHandler:
     def __init__(self, checkpoint_dir, delete_existing_checkpoints, run_name, load_from_checkpoint):
-        logging.info('Initializing checkpoint handler...')
+        logging.info('Initializing checkpoint handling...')
         self.checkpoint_dir = checkpoint_dir
         self.delete_existing_checkpoints = delete_existing_checkpoints
         self.run_name = run_name

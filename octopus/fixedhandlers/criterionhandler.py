@@ -11,7 +11,7 @@ import torch.nn as nn
 class CriterionHandler:
 
     def __init__(self, criterion_type):
-        logging.info('Initializing criterion handler...')
+        logging.info('Initializing criterion handling...')
         self.criterion_type = criterion_type
 
     def get_loss_function(self):

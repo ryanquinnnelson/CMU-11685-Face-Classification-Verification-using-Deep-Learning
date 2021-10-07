@@ -11,7 +11,7 @@ import torch.optim as optim
 class SchedulerHandler:
 
     def __init__(self, scheduler_type, scheduler_kwargs, scheduler_plateau_metric):
-        logging.info('Initializing scheduler handler...')
+        logging.info('Initializing scheduler handling...')
         self.scheduler_type = scheduler_type
         self.scheduler_kwargs = scheduler_kwargs
         self.scheduler_plateau_metric = scheduler_plateau_metric

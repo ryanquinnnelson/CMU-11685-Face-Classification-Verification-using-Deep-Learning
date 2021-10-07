@@ -17,6 +17,7 @@ class ImageDatasetHandler:
 
     def __init__(self,
                  run_name,
+                 data_dir,
                  train_dir,
                  val_dir,
                  test_dir,
@@ -24,16 +25,11 @@ class ImageDatasetHandler:
 
         self.run_name = run_name
         self.data_dir = data_dir
-        self.output_dir = output_dir
         self.train_dir = train_dir
         self.val_dir = val_dir
         self.test_dir = test_dir
         self.transforms = transforms
 
-        # parameters
-        self.batch_size = batch_size
-        self.num_workers = num_workers
-        self.pin_memory = pin_memory
 
     def setup(self):
         logging.info('Setting up data handler...')

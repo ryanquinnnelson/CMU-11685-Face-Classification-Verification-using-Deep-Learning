@@ -11,7 +11,7 @@ import octopus.utilities.utilities as utilities
 
 class OutputHandler:
     def __init__(self, run_name, output_dir):
-        logging.info('Initializing output handler...')
+        logging.info('Initializing output handling...')
         self.run_name = run_name
         self.output_dir = output_dir
 

@@ -9,7 +9,7 @@ import logging
 class StatsHandler:
 
     def __init__(self, val_metric_name, comparison_metric, comparison_best_is_max, comparison_patience):
-        logging.info('Initializing stats handler...')
+        logging.info('Initializing stats handling...')
         self.stats = {'epoch': [],
                       'runtime': [],
                       'train_loss': [],

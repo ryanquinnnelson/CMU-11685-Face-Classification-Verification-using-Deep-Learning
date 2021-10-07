@@ -14,15 +14,17 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = "1"  # better error tracking from gpu
 from octopus.utilities.utilities import _to_string_list, _to_float_dict, _to_int_dict
 from octopus.connectors.kaggleconnector import KaggleConnector
 from octopus.connectors.wandbconnector import WandbConnector
-from octopus.finished.checkpointhandler import CheckpointHandler
-from octopus.finished.devicehandler import DeviceHandler
+from octopus.fixedhandlers.checkpointhandler import CheckpointHandler
+from octopus.fixedhandlers.devicehandler import DeviceHandler
+from octopus.fixedhandlers.criterionhandler import CriterionHandler
+from octopus.fixedhandlers.optimizerhandler import OptimizerHandler
+from octopus.fixedhandlers.schedulerhandler import SchedulerHandler
+from octopus.fixedhandlers.statshandler import StatsHandler
+from octopus.fixedhandlers.phasehandler import PhaseHandler
+from octopus.fixedhandlers.dataloaderhandler import DataLoaderHandler
+from octopus.fixedhandlers.outputhandler import OutputHandler
 from octopus.handlers.imagedatasethandler import ImageDatasetHandler
 from octopus.handlers.cnnhandler import CnnHandler
-from octopus.finished.criterionhandler import CriterionHandler
-from octopus.finished.optimizerhandler import OptimizerHandler
-from octopus.finished.schedulerhandler import SchedulerHandler
-from octopus.finished.statshandler import StatsHandler
-from octopus.finished.phasehandler import PhaseHandler
 
 # customized to this data
 from customized.customized import OutputFormatter
@@ -39,91 +41,16 @@ class Octopus:
         _draw_logo()
         logging.info('Initializing octopus...')
 
-        # kaggle
-        if config['kaggle'].getboolean('download_from_kaggle'):
-            self.kaggleconnector = KaggleConnector(config['kaggle']['kaggle_dir'],
-                                                   config['kaggle']['content_dir'],
-                                                   config['kaggle']['token_file'],
-                                                   config['kaggle']['competition'],
-                                                   config['kaggle'].getboolean('delete_zipfiles_after_unzipping'))
-        else:
-            self.kaggleconnector = None
+        # connectors
+        self.kaggleconnector, self.wandbconnector = initialize_connectors(config)
 
-        # wandb
-        hyper_dict = dict(config['hyperparameters'])
-        hyper_dict.update(dict(config['model']))  # get all hyperparameters from different parts of config
-        self.wandbconnector = WandbConnector(config['wandb']['wandb_dir'],
-                                             config['wandb']['entity'],
-                                             config['DEFAULT']['run_name'],
-                                             config['wandb']['project'],
-                                             config['wandb']['notes'],
-                                             _to_string_list(config['wandb']['tags']),
-                                             hyper_dict)
+        # fixed handlers
+        self.checkpointhandler, self.criterionhandler, self.dataloaderhandler, self.devicehandler, \
+        self.optimizerhandler, self.outputhandler, self.schedulerhandler, self.statshandler, \
+        self.phasehandler = initialize_fixed_handlers(config, self.wandbconnector)
 
-        # checkpoints
-        self.checkpointhandler = CheckpointHandler(config['checkpoint']['checkpoint_dir'],
-                                                   config['checkpoint'].getboolean('delete_existing_checkpoints'),
-                                                   config['DEFAULT']['run_name'],
-                                                   config['checkpoint'].getboolean('load_from_checkpoint'))
-
-        # criterion
-        self.criterionhandler = CriterionHandler(config['hyperparameters']['criterion_type'])
-
-        # data
-        if config['data']['data_type']== 'image':
-            self.datahandler = ImageDatasetHandler(config['DEFAULT']['run_name'],
-                                                   config['data']['train_dir'],
-                                                   config['data']['val_dir'],
-                                                   config['data']['test_dir'],
-                                                   config['data']['transforms'])
-        else:
-            self.datahandler = None
-
-        # device
-        self.devicehandler = DeviceHandler()
-
-        # model
-        self.modelhandler = CnnHandler(config['model']['model_type'],
-                                       config['model'].getint('input_size'),
-                                       config['model'].getint('output_size'),
-                                       config['model']['activation_func'],
-                                       config['model'].getboolean('batch_norm'),
-                                       _to_int_dict(config['model']['conv_kwargs']),
-                                       config['model']['pool_class'],
-                                       _to_int_dict(config['model']['pool_kwargs']))
-
-        # optimizer
-        self.optimizerhandler = OptimizerHandler(config['hyperparameters']['optimizer_type'],
-                                                 _to_float_dict(config['hyperparameters']['optimizer_kwargs']), )
-
-        # scheduler
-        self.schedulerhandler = SchedulerHandler(config['hyperparameters']['scheduler_type'],
-                                                 _to_float_dict(config['hyperparameters']['scheduler_kwargs']),
-                                                 config['hyperparameters']['scheduler_plateau_metric'])
-
-        # statshandler
-        self.statshandler = StatsHandler(config['stats']['val_metric_name'],
-                                         config['stats']['comparison_metric'],
-                                         config['stats'].getboolean('comparison_best_is_max'),
-                                         config['stats'].getint('comparison_patience'))
-
-        # phasehandler
-        if config.has_option('checkpoint', 'checkpoint_file'):
-            checkpoint_file = config['checkpoint']['checkpoint_file']
-        else:
-            checkpoint_file = None
-        first_epoch = 1
-        self.phasehandler = PhaseHandler(first_epoch,
-                                         config['hyperparameters'].getint('num_epochs'),
-                                         self.datahandler,
-                                         self.devicehandler,
-                                         self.statshandler,
-                                         self.checkpointhandler,
-                                         self.schedulerhandler,
-                                         self.wandbconnector,
-                                         OutputFormatter(),
-                                         config['checkpoint'].getboolean('load_from_checkpoint'),
-                                         checkpoint_file)
+        # variable handlers
+        self.inputhandler, self.modelhandler = initialize_variable_handlers(config)
 
         logging.info('octopus initialization is complete.')
 
@@ -141,7 +68,7 @@ class Octopus:
         self.checkpointhandler.setup()
 
         # output directory
-        self.datahandler.setup()
+        self.outputhandler.setup()
 
         # device
         self.devicehandler.setup()
@@ -155,7 +82,7 @@ class Octopus:
             logging.info('octopus has finished downloading data.')
         else:
             logging.info('octopus is not downloading data.')
-            logging.info(f'octopus expects data to be available in {self.datahandler.data_dir}.')
+            logging.info(f'octopus expects data to be available in {self.inputhandler.data_dir}.')
 
     def run_pipeline(self):
         """
@@ -189,7 +116,7 @@ class Octopus:
         # # run epochs
         # self.phasehandler.process_epochs(model, optimizer, scheduler, training, evaluation, testing)
 
-        logging.info('octopus has finished running the pipeline.')
+        logging.info('octopus has fixedhandlers running the pipeline.')
 
     def cleanup(self):
         logging.info('octopus shutdown complete.')
@@ -233,3 +160,115 @@ def _draw_logo():
     logging.info('')
     logging.info('       O  C  T  O  P  U  S')
     logging.info('')
+
+
+def initialize_connectors(config):
+    # kaggle
+    if config['kaggle'].getboolean('download_from_kaggle'):
+        kaggleconnector = KaggleConnector(config['kaggle']['kaggle_dir'],
+                                          config['kaggle']['content_dir'],
+                                          config['kaggle']['token_file'],
+                                          config['kaggle']['competition'],
+                                          config['kaggle'].getboolean('delete_zipfiles_after_unzipping'))
+    else:
+        kaggleconnector = None
+
+    # wandb
+    hyper_dict = dict(config['hyperparameters'])
+    hyper_dict.update(dict(config['model']))  # get all hyperparameters from different parts of config
+    wandbconnector = WandbConnector(config['wandb']['wandb_dir'],
+                                    config['wandb']['entity'],
+                                    config['DEFAULT']['run_name'],
+                                    config['wandb']['project'],
+                                    config['wandb']['notes'],
+                                    _to_string_list(config['wandb']['tags']),
+                                    hyper_dict)
+
+    return kaggleconnector, wandbconnector
+
+
+def initialize_fixed_handlers(config, wandbconnector):
+    # checkpoints
+    checkpointhandler = CheckpointHandler(config['checkpoint']['checkpoint_dir'],
+                                          config['checkpoint'].getboolean('delete_existing_checkpoints'),
+                                          config['DEFAULT']['run_name'],
+                                          config['checkpoint'].getboolean('load_from_checkpoint'))
+
+    # criterion
+    criterionhandler = CriterionHandler(config['hyperparameters']['criterion_type'])
+
+    # dataloader
+    dataloaderhandler = DataLoaderHandler(config['dataloader'].getint('batch_size'),
+                                          config['dataloader'].getint('num_workers'),
+                                          config['dataloader'].getboolean('pin_memory'))
+
+    # device
+    devicehandler = DeviceHandler()
+
+    # optimizer
+    optimizerhandler = OptimizerHandler(config['hyperparameters']['optimizer_type'],
+                                        _to_float_dict(config['hyperparameters']['optimizer_kwargs']))
+
+    # output
+    outputhandler = OutputHandler(config['DEFAULT']['run_name'],
+                                  config['output']['output_dir'])
+
+    # scheduler
+    schedulerhandler = SchedulerHandler(config['hyperparameters']['scheduler_type'],
+                                        _to_float_dict(config['hyperparameters']['scheduler_kwargs']),
+                                        config['hyperparameters']['scheduler_plateau_metric'])
+
+    # statshandler
+    statshandler = StatsHandler(config['stats']['val_metric_name'],
+                                config['stats']['comparison_metric'],
+                                config['stats'].getboolean('comparison_best_is_max'),
+                                config['stats'].getint('comparison_patience'))
+
+    # phasehandler
+    if config.has_option('checkpoint', 'checkpoint_file'):
+        checkpoint_file = config['checkpoint']['checkpoint_file']
+    else:
+        checkpoint_file = None
+
+    phasehandler = PhaseHandler(config['hyperparameters'].getint('num_epochs'),
+                                outputhandler,
+                                devicehandler,
+                                statshandler,
+                                checkpointhandler,
+                                schedulerhandler,
+                                wandbconnector,
+                                OutputFormatter(),
+                                config['checkpoint'].getboolean('load_from_checkpoint'),
+                                checkpoint_file)
+
+    return checkpointhandler, criterionhandler, dataloaderhandler, devicehandler, \
+           optimizerhandler, outputhandler, schedulerhandler, statshandler, phasehandler
+
+
+# TODO add alternative input and model handlers for MLP
+def initialize_variable_handlers(config):
+    # input
+    if config['data']['data_type'] == 'image':
+        inputhandler = ImageDatasetHandler(config['DEFAULT']['run_name'],
+                                           config['data']['data_dir'],
+                                           config['data']['train_dir'],
+                                           config['data']['val_dir'],
+                                           config['data']['test_dir'],
+                                           config['data']['transforms'])
+    else:
+        inputhandler = None
+
+    # model
+    if config['model']['model_type'] == 'CNN2d':
+        modelhandler = CnnHandler(config['model']['model_type'],
+                                  config['model'].getint('input_size'),
+                                  config['model'].getint('output_size'),
+                                  config['model']['activation_func'],
+                                  config['model'].getboolean('batch_norm'),
+                                  _to_int_dict(config['model']['conv_kwargs']),
+                                  config['model']['pool_class'],
+                                  _to_int_dict(config['model']['pool_kwargs']))
+    else:
+        modelhandler = None
+
+    return inputhandler, modelhandler
