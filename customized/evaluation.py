@@ -6,6 +6,33 @@ __author__ = 'ryanquinnnelson'
 import logging
 
 import torch
+import numpy as np
+
+
+def _convert_output(out):
+    # convert 2D output to 1D a single class label (4000 nodes into a single number per output)
+    out = np.argmax(out, axis=1)  # column with max value in each row is the index of the predicted label
+
+    return out
+
+
+def _calculate_num_hits(out, actual):
+    """
+    out: 2D tensor (torch.FloatTensor), each row has 71 columns (one for each possible label)
+    actual: 1D tensor (torch.LongTensor)
+    """
+    print('out', out)
+
+    # retrieve labels from device by converting to numpy arrays
+    actual = actual.cpu().detach().numpy()
+    print('actual', actual)
+    # convert output to class labels
+    pred = _convert_output(out)
+    print('pred', pred)
+    # compare predictions against actual
+    n_hits = np.sum(pred == actual)
+    print('hits', n_hits)
+    return n_hits
 
 
 class Evaluation:

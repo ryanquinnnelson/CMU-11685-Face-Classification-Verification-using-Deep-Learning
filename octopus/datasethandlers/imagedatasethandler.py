@@ -8,6 +8,8 @@ import logging
 import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
 
+from customized.datasets import TestDataset
+
 
 def _compose_transforms(transforms_list):
     t_list = []
@@ -40,18 +42,17 @@ class ImageDatasetHandler:
 
     def get_train_dataset(self):
         transform = _compose_transforms(self.transforms_list)
+        print(transform)
         imf = ImageFolder(self.train_dir, transform=transform)
         logging.info(f'Loaded {len(imf.imgs)} images as training data.')
         return imf
 
     def get_val_dataset(self):
-        transform = _compose_transforms(self.transforms_list)
-        imf = ImageFolder(self.val_dir, transform=transform)
+        imf = ImageFolder(self.val_dir, transform=transforms.Compose([transforms.ToTensor()]))
         logging.info(f'Loaded {len(imf.imgs)} images as validation data.')
         return imf
 
     def get_test_dataset(self):
-        imf = None
-        # imf = ImageFolder(self.test_dir)
-        # logging.info(f'Loaded {len(imf.imgs)} images as test data.')
-        return imf
+        ds = TestDataset(self.test_dir)
+        logging.info(f'Loaded {ds.length} images as test data.')
+        return ds

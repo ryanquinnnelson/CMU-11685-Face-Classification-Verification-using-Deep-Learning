@@ -1,2 +1,7 @@
+import pandas as pd
+
+
 class OutputFormatter:
-    pass
+    def format_output(self, out):
+        # convert to dataframe
+        return pd.DataFrame(out)

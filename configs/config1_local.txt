@@ -60,7 +60,7 @@ output_dir = /Users/ryanqnelson/Desktop/test/output
 [dataloader]
 num_workers=8
 pin_memory=True
-batch_size=128
+batch_size=10
 
 
 [model]
@@ -69,9 +69,11 @@ input_size=64
 output_size=4000
 batch_norm=True
 activation_func=ReLU
-conv_kwargs=1.in_channels=3,1.out_channels=4,1.kernel_size=3,1.stride=1,1.padding=0,1.dilation=1,2.in_channels=4,2.out_channels=4,2.kernel_size=3,2.stride=1,2.padding=0,2.dilation=1
+conv_kwargs=1.in_channels=3,1.out_channels=4,1.kernel_size=3,1.stride=1,1.padding=1,1.dilation=1
+#,2.in_channels=4,2.out_channels=4,2.kernel_size=3,2.stride=1,2.padding=0,2.dilation=1
 pool_class=MaxPool2d
-pool_kwargs=1.kernel_size=2,1.stride=2,1.padding=0,1.dilation=1,2.kernel_size=2,2.stride=2,2.padding=0,2.dilation=1
+pool_kwargs=1.kernel_size=2,1.stride=2,1.padding=0,1.dilation=1
+#,2.kernel_size=2,2.stride=2,2.padding=0,2.dilation=1
 
 
 

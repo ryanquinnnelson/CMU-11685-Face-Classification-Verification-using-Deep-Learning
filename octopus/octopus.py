@@ -115,9 +115,9 @@ class Octopus:
         training = Training(train_loader, loss_func, self.devicehandler)
         evaluation = Evaluation(val_loader, loss_func, self.devicehandler)
         testing = Testing(test_loader, self.devicehandler)
-        #
-        # # run epochs
-        # self.phasehandler.process_epochs(model, optimizer, scheduler, training, evaluation, testing)
+
+        # run epochs
+        self.phasehandler.process_epochs(model, optimizer, scheduler, training, evaluation, testing)
 
         logging.info('octopus has finished running the pipeline.')
 
@@ -256,7 +256,7 @@ def initialize_variable_handlers(config):
                                            config['data']['train_dir'],
                                            config['data']['val_dir'],
                                            config['data']['test_dir'],
-                                           config['data']['transforms_list'])
+                                           _to_string_list(config['data']['transforms_list']))
     else:
         inputhandler = None
 

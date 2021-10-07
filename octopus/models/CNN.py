@@ -3,6 +3,7 @@ Defines all standard CNNs octopus can generate.
 """
 
 __author__ = 'ryanquinnnelson'
+
 import logging
 
 import torch.nn as nn
@@ -95,7 +96,7 @@ def _build_linear_sequence(input_size, output_size, out_channels):
     sequence.append(('lin', nn.Linear(input_size * input_size * out_channels, output_size)))
 
     # add softmax as final activation
-    sequence.append(('soft', nn.Softmax()))
+    sequence.append(('soft', nn.Softmax(dim=1)))  # all rows sum to 1
     return sequence
 
 
@@ -104,8 +105,9 @@ class CNN2d(nn.Module):
         super(CNN2d, self).__init__()
 
         # define cnn layers
-        cnn_sequence, cnn_output_size, cnn_out_channels = _build_cnn2d_sequence(input_size, activation_func, batch_norm, conv_dicts,
-                                                              pool_class, pool_dicts)
+        cnn_sequence, cnn_output_size, cnn_out_channels = _build_cnn2d_sequence(input_size, activation_func, batch_norm,
+                                                                                conv_dicts,
+                                                                                pool_class, pool_dicts)
         self.cnn_layers = nn.Sequential(OrderedDict(cnn_sequence))
 
         # define linear layers
