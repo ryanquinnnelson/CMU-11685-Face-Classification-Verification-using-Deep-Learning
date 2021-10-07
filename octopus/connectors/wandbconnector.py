@@ -48,6 +48,7 @@ class WandbConnector:
         import wandb
         wandb.watch(model)  # log the network weight histograms
 
+    # TODO revise to preprocess dictionary and split up entries with =
     def log_stats(self, stats_dict):
         import wandb
         wandb.log(stats_dict)
