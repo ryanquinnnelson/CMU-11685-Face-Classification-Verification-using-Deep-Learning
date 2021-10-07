@@ -11,6 +11,7 @@ import torch.optim as optim
 class OptimizerHandler:
 
     def __init__(self, optimizer_type, optimizer_kwargs):
+        logging.info('Initializing optimizer handler...')
         self.optimizer_type = optimizer_type
         self.optimizer_kwargs = optimizer_kwargs
 

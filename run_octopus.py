@@ -17,9 +17,9 @@ def main():
 
     # run octopus
     octopus = Octopus(config)
-    octopus.setup_environment()
-    octopus.download_data()
-    octopus.run_pipeline()
+    # octopus.setup_environment()
+    # octopus.download_data()
+    # octopus.run_pipeline()
     # octopus.cleanup()
 
 

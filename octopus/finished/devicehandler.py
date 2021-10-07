@@ -11,6 +11,7 @@ import torch
 
 class DeviceHandler:
     def __init__(self):
+        logging.info('Initializing device handler...')
         self.device = None
 
     def setup(self):

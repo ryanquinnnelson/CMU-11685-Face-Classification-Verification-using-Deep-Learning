@@ -9,15 +9,16 @@ import time
 
 class PhaseHandler:
 
-    def __init__(self, first_epoch, num_epochs, datahandler, devicehandler, statshandler, checkpointhandler,
+    def __init__(self, first_epoch, num_epochs, outputhandler, devicehandler, statshandler, checkpointhandler,
                  schedulerhandler, wandbconnector, formatter, load_from_checkpoint, checkpoint_file=None):
+        logging.info('Initializing phase handler...')
         self.load_from_checkpoint = load_from_checkpoint
         self.checkpoint_file = checkpoint_file
         self.first_epoch = first_epoch
         self.num_epochs = num_epochs
 
         # handlers
-        self.datahandler = datahandler
+        self.outputhandler = outputhandler
         self.devicehandler = devicehandler
         self.statshandler = statshandler
         self.checkpointhandler = checkpointhandler
@@ -57,7 +58,7 @@ class PhaseHandler:
             # test
             out = testing.test_model(epoch, self.num_epochs, model)
             out = self.formatter.format_output(out)
-            self.datahandler.save(out, epoch)
+            self.outputhandler.save(out, epoch)
 
             # stats
             end = time.time()

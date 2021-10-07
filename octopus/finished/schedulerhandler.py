@@ -7,25 +7,11 @@ import logging
 
 import torch.optim as optim
 
-"""
-StepLR: Decays the learning rate of each parameter group by gamma every step_size epochs
-- step_size
-- gamma
-
-MultiStepLR: Decays the learning rate of each parameter group by gamma once the number of epoch reaches one of the milestones
-- milestones
-- gamma
-
-ReduceLROnPlateau: Reduce learning rate when a metric has stopped improving
-- factor
-- patience
-- mode (Note: if we want the metrics to be large (i.e. accuracy), we should set mode='max')
-"""
-
 
 class SchedulerHandler:
 
     def __init__(self, scheduler_type, scheduler_kwargs, scheduler_plateau_metric):
+        logging.info('Initializing scheduler handler...')
         self.scheduler_type = scheduler_type
         self.scheduler_kwargs = scheduler_kwargs
         self.scheduler_plateau_metric = scheduler_plateau_metric

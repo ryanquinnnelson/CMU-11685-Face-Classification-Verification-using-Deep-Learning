@@ -1,16 +1,25 @@
 [DEFAULT]
-run_name = Run-07
+run_name = Run-01
+
+
+
 
 [debug]
 debug_file = /Users/ryanqnelson/Desktop/test/debug.log
+
+
+
 
 [kaggle]
 download_from_kaggle = False
 kaggle_dir = /Users/ryanqnelson/Desktop/test/.kaggle
 content_dir = /Users/ryanqnelson/Desktop/test/content/
 token_file = /Users/ryanqnelson/Desktop/kaggle.json
-competition = hw1p2-toy-problem
+competition = idl-fall21-hw2p2s1-face-classification
 delete_zipfiles_after_unzipping = True
+
+
+
 
 [wandb]
 wandb_dir = /Users/ryanqnelson/Desktop/test
@@ -19,29 +28,32 @@ project = CMU-11685-HW2P2A-octopus
 notes = CNN Face Classification
 tags = CNN,octopus
 
+
+
+
 [stats]
-# metric for comparison against previous runs to check whether early stopping should occur
 comparison_metric=val_acc
-
-# if a lower value is better for the metric, set comparison_best_is_max to False
 comparison_best_is_max=True
-
-# how many epochs to allow the current model to perform worse than the best model for this metric before stopping
 comparison_patience=20
-
-# name of the metric that evaluate_model() returns in the second position of the tuple, for stats purposes
 val_metric_name=val_acc
 
+
+
+
 [data]
-data_dir = /Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification
+data_type = image
+train_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/train_data
+val_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/val_data
+test_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/test_data
+transforms=RandomHorizontalFlip,ToTensor
+
+[output]
 output_dir = /Users/ryanqnelson/Desktop/test/output
-train_data_file=toy_train_data.npy
-train_label_file=toy_train_label.npy
-val_data_file=toy_val_data.npy
-val_label_file=toy_val_label.npy
-test_data_file=toy_test_data.npy
 
-
+[dataloader]
+dataloader_num_workers=8
+dataloader_pin_memory=True
+dataloader_batch_size=128
 
 
 [model]
@@ -60,29 +72,15 @@ pool_kwargs=1.kernel_size=2,1.stride=2,1.padding=0,1.dilation=1,2.kernel_size=2,
 checkpoint_dir = /Users/ryanqnelson/Desktop/test/checkpoints
 delete_existing_checkpoints = True
 load_from_checkpoint=False
-
-# if loading from a checkpoint, supply a fully qualified filename for the checkpoint file
 checkpoint_file =  None
 
 
 
 [hyperparameters]
-dataloader_num_workers=8
-dataloader_pin_memory=True
-dataloader_batch_size=128
-
-# keyword arguments to be supplied to Dataset subclasses when loading data
-dataset_kwargs=context=2
 num_epochs = 3
 criterion_type=CrossEntropyLoss
 optimizer_type=Adam
-
-# keyword arguments to be supplied when initializing the optimizer
 optimizer_kwargs=lr=0.001
 scheduler_type=ReduceLROnPlateau
-
-# keyword arguments to be supplied when initializing the scheduler
 scheduler_kwargs=factor=0.1,patience=5,mode=max,verbose=True
-
-# name of the metric stored in stats that the scheduler uses (if necessary) to determine its step
 scheduler_plateau_metric=val_acc

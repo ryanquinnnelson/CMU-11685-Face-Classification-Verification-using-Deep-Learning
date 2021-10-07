@@ -1,35 +1,45 @@
 from torch.utils.data import Dataset
-
+import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
+
 __author__ = 'ryanquinnnelson'
-# class Train_Test_Dataset(Dataset):
-#
-#     def __init__(self, data, labels):
-#         pass
-#
-#     def __len__(self):
-#         pass
-#
-#     def __getitem(self, index):
-#         pass
-
-p = '/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/val_data'
-imf = ImageFolder(p)
-
-dl = DataLoader(imf, batch_size=10, shuffle=False)
 
 
 class TrainValDataset:
-    pass
+    def __init__(self, image_dir, transforms_list):
+
+        compose_list = []
+
+        for each in transforms_list:
+            if each == 'RandomHorizontalFlip':
+                compose_list.append(transforms.RandomHorizontalFlip())
+            elif each == 'ToTensor':
+                compose_list.append(transforms.ToTensor())
+
+        t = transforms.Compose(compose_list)
+
+        self.imagefolder = ImageFolder(image_dir, transform=t)
 
 
 class TestDataset:
-    pass
+    def __init__(self, image_dir, transforms_list):
+
+        compose_list = []
+
+        for each in transforms_list:
+            if each == 'RandomHorizontalFlip':
+                compose_list.append(transforms.RandomHorizontalFlip())
+            elif each == 'ToTensor':
+                compose_list.append(transforms.ToTensor())
+
+        t = transforms.Compose(compose_list)
+
+        self.imagefolder = ImageFolder(image_dir, transform=t)
 
 
 class Evaluation:
-    def __init__(self,val_loader, loss_func, devicehandler):
+    def __init__(self, val_loader, loss_func, devicehandler):
         pass
 
 

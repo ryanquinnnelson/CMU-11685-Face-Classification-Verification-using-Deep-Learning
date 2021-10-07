@@ -14,35 +14,33 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = "1"  # better error tracking from gpu
 from octopus.utilities.utilities import _to_string_list, _to_float_dict, _to_int_dict
 from octopus.connectors.kaggleconnector import KaggleConnector
 from octopus.connectors.wandbconnector import WandbConnector
-from octopus.handlers.checkpointhandler import CheckpointHandler
-from octopus.handlers.devicehandler import DeviceHandler
-from octopus.handlers.imagedatahandler import ImageDataHandler
+from octopus.finished.checkpointhandler import CheckpointHandler
+from octopus.finished.devicehandler import DeviceHandler
+from octopus.handlers.imagedatasethandler import ImageDatasetHandler
 from octopus.handlers.cnnhandler import CnnHandler
-from octopus.handlers.criterionhandler import CriterionHandler
-from octopus.handlers.optimizerhandler import OptimizerHandler
-from octopus.handlers.schedulerhandler import SchedulerHandler
-from octopus.handlers.statshandler import StatsHandler
-from octopus.handlers.phasehandler import PhaseHandler
-from octopus.phases.training import Training
-from octopus.phases.testing import Testing
+from octopus.finished.criterionhandler import CriterionHandler
+from octopus.finished.optimizerhandler import OptimizerHandler
+from octopus.finished.schedulerhandler import SchedulerHandler
+from octopus.finished.statshandler import StatsHandler
+from octopus.finished.phasehandler import PhaseHandler
 
 # customized to this data
-from customized.customized import Evaluation, TrainValDataset, TestDataset, OutputFormatter
+from customized.customized import OutputFormatter
 
 
 class Octopus:
 
     def __init__(self, config):
+        # save configuration
+        self.config = config
+
         # logging
         _setup_logging(config['debug']['debug_file'])
         _draw_logo()
         logging.info('Initializing octopus...')
 
-        # save configuration
-        self.config = config
-
+        # kaggle
         if config['kaggle'].getboolean('download_from_kaggle'):
-            # kaggle
             self.kaggleconnector = KaggleConnector(config['kaggle']['kaggle_dir'],
                                                    config['kaggle']['content_dir'],
                                                    config['kaggle']['token_file'],
@@ -52,8 +50,8 @@ class Octopus:
             self.kaggleconnector = None
 
         # wandb
-        # get all hyperparameters from different parts of config
-        hyper_dict = dict(config['hyperparameters']).update(dict(config['model']))
+        hyper_dict = dict(config['hyperparameters'])
+        hyper_dict.update(dict(config['model']))  # get all hyperparameters from different parts of config
         self.wandbconnector = WandbConnector(config['wandb']['wandb_dir'],
                                              config['wandb']['entity'],
                                              config['DEFAULT']['run_name'],
@@ -72,23 +70,14 @@ class Octopus:
         self.criterionhandler = CriterionHandler(config['hyperparameters']['criterion_type'])
 
         # data
-        if config.has_option('data', 'test_label_file'):
-            test_label_file = config['data']['test_label_file']
+        if config['data']['data_type']== 'image':
+            self.datahandler = ImageDatasetHandler(config['DEFAULT']['run_name'],
+                                                   config['data']['train_dir'],
+                                                   config['data']['val_dir'],
+                                                   config['data']['test_dir'],
+                                                   config['data']['transforms'])
         else:
-            test_label_file = None
-        self.datahandler = ImageDataHandler(config['DEFAULT']['run_name'],
-                                            config['data']['data_dir'],
-                                            config['data']['output_dir'],
-                                            config['data']['train_data_file'],
-                                            config['data']['train_label_file'],
-                                            config['data']['val_data_file'],
-                                            config['data']['val_label_file'],
-                                            config['data']['test_data_file'],
-                                            test_label_file,
-                                            config['hyperparameters'].getint('dataloader_batch_size'),
-                                            config['hyperparameters'].getint('dataloader_num_workers'),
-                                            config['hyperparameters'].getboolean('dataloader_pin_memory'),
-                                            _to_float_dict(config['hyperparameters']['dataset_kwargs']))
+            self.datahandler = None
 
         # device
         self.devicehandler = DeviceHandler()
