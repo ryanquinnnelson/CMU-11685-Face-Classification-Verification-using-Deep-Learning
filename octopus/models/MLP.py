@@ -4,25 +4,11 @@ Defines all standard MLP models that Octopus can generate.
 
 __author__ = 'ryanquinnnelson'
 
-import logging
 from collections import OrderedDict
 
 import torch.nn as nn
 
-
-def _get_activation_function(activation_func):
-    act = None
-
-    if activation_func == 'ReLU':
-        act = nn.ReLU(inplace=True)
-    elif activation_func == 'LeakyReLU':
-        act = nn.LeakyReLU(inplace=True)
-    elif activation_func == 'Sigmoid':
-        act = nn.Sigmoid()
-    elif activation_func == 'Tanh':
-        act = nn.Tanh()
-
-    return act
+from octopus.models.helper import _get_activation_function
 
 
 def _build_linear_sequence(sizes, activation_func, dropout_rate, batch_norm):

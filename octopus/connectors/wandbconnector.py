@@ -7,7 +7,7 @@ import logging
 import subprocess
 
 import pandas as pd
-import octopus.utilities.utilities as utilities
+import octopus.helper as utilities
 
 
 class WandbConnector:

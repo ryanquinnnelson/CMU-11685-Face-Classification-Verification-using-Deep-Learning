@@ -6,7 +6,7 @@ __author__ = 'ryanquinnnelson'
 import logging
 import os
 from datetime import datetime
-import octopus.utilities.utilities as utilities
+import octopus.helper as utilities
 
 
 class OutputHandler:

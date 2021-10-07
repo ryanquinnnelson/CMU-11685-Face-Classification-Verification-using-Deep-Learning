@@ -8,7 +8,7 @@ import logging
 
 import torch
 
-from octopus.utilities import utilities
+from octopus import helper
 
 
 class CheckpointHandler:
@@ -29,9 +29,9 @@ class CheckpointHandler:
 
         logging.info('Preparing checkpoint directory...')
         if self.delete_existing_checkpoints:
-            utilities.delete_directory(self.checkpoint_dir)
+            helper.delete_directory(self.checkpoint_dir)
 
-        utilities.create_directory(self.checkpoint_dir)
+        helper.create_directory(self.checkpoint_dir)
 
     def save(self, model, optimizer, scheduler, next_epoch, stats):
         # build filename

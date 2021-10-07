@@ -11,7 +11,7 @@ import sys
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"  # better error tracking from gpu
 
 # local modules
-from octopus.utilities.utilities import _to_string_list, _to_float_dict, _to_int_dict
+from octopus.helper import _to_string_list, _to_float_dict, _to_int_dict
 from octopus.connectors.kaggleconnector import KaggleConnector
 from octopus.connectors.wandbconnector import WandbConnector
 from octopus.fixedhandlers.checkpointhandler import CheckpointHandler
@@ -23,8 +23,8 @@ from octopus.fixedhandlers.statshandler import StatsHandler
 from octopus.fixedhandlers.phasehandler import PhaseHandler
 from octopus.fixedhandlers.dataloaderhandler import DataLoaderHandler
 from octopus.fixedhandlers.outputhandler import OutputHandler
-from octopus.handlers.imagedatasethandler import ImageDatasetHandler
-from octopus.handlers.cnnhandler import CnnHandler
+from octopus.datasethandlers.imagedatasethandler import ImageDatasetHandler
+from octopus.modelhandlers.cnnhandler import CnnHandler
 
 # customized to this data
 from customized.customized import OutputFormatter
@@ -249,12 +249,11 @@ def initialize_fixed_handlers(config, wandbconnector):
 def initialize_variable_handlers(config):
     # input
     if config['data']['data_type'] == 'image':
-        inputhandler = ImageDatasetHandler(config['DEFAULT']['run_name'],
-                                           config['data']['data_dir'],
+        inputhandler = ImageDatasetHandler(config['data']['data_dir'],
                                            config['data']['train_dir'],
                                            config['data']['val_dir'],
                                            config['data']['test_dir'],
-                                           config['data']['transforms'])
+                                           config['data']['transforms_list'])
     else:
         inputhandler = None
 

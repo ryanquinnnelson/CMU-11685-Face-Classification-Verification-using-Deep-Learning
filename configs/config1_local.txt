@@ -46,7 +46,7 @@ data_dir = /Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2
 train_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/train_data
 val_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/val_data
 test_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/test_data
-transforms=RandomHorizontalFlip,ToTensor
+transforms_list=RandomHorizontalFlip,ToTensor
 
 [output]
 output_dir = /Users/ryanqnelson/Desktop/test/output

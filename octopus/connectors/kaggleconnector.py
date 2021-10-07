@@ -10,7 +10,7 @@ import json
 import glob
 import zipfile
 
-import octopus.utilities.utilities as utilities
+import octopus.helper as utilities
 
 
 class KaggleConnector:
