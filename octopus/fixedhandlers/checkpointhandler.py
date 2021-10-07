@@ -25,8 +25,6 @@ class CheckpointHandler:
             self.delete_existing_checkpoints = False
 
     def setup(self):
-        logging.info('Setting up checkpoint handler...')
-
         logging.info('Preparing checkpoint directory...')
         if self.delete_existing_checkpoints:
             helper.delete_directory(self.checkpoint_dir)

@@ -25,9 +25,12 @@ from octopus.fixedhandlers.dataloaderhandler import DataLoaderHandler
 from octopus.fixedhandlers.outputhandler import OutputHandler
 from octopus.datasethandlers.imagedatasethandler import ImageDatasetHandler
 from octopus.modelhandlers.cnnhandler import CnnHandler
+from octopus.phases.training import Training
+from octopus.phases.testing import Testing
 
 # customized to this data
-from customized.customized import OutputFormatter
+from customized.formatters import OutputFormatter
+from customized.evaluation import Evaluation
 
 
 class Octopus:
@@ -73,6 +76,9 @@ class Octopus:
         # device
         self.devicehandler.setup()
 
+        # dataloaders
+        self.dataloaderhandler.setup(self.devicehandler.device)
+
         logging.info('octopus has finished setting up the environment.')
 
     def download_data(self):
@@ -102,21 +108,18 @@ class Octopus:
         optimizer = self.optimizerhandler.get_optimizer(model)
         scheduler = self.schedulerhandler.get_scheduler(optimizer)
 
-        # # load data
-        # train_loader, val_loader, test_loader = self.datahandler.load(TrainValDataset,
-        #                                                               TrainValDataset,
-        #                                                               TestDataset,
-        #                                                               self.devicehandler)
-        #
-        # # load phases
-        # training = Training(train_loader, loss_func, self.devicehandler)
-        # evaluation = Evaluation(val_loader, loss_func, self.devicehandler)
-        # testing = Testing(test_loader, self.devicehandler)
+        # load data
+        train_loader, val_loader, test_loader = self.dataloaderhandler.load(self.inputhandler)
+
+        # load phases
+        training = Training(train_loader, loss_func, self.devicehandler)
+        evaluation = Evaluation(val_loader, loss_func, self.devicehandler)
+        testing = Testing(test_loader, self.devicehandler)
         #
         # # run epochs
         # self.phasehandler.process_epochs(model, optimizer, scheduler, training, evaluation, testing)
 
-        logging.info('octopus has fixedhandlers running the pipeline.')
+        logging.info('octopus has finished running the pipeline.')
 
     def cleanup(self):
         logging.info('octopus shutdown complete.')
@@ -132,7 +135,7 @@ def _setup_logging(debug_file):
     if os.path.isfile(debug_file):
         os.remove(debug_file)
 
-        # write to both debug file and stdout
+    # write to both debug file and stdout
     # https://youtrack.jetbrains.com/issue/PY-39762
     # noinspection PyArgumentList
     logging.basicConfig(level=logging.INFO,
@@ -197,13 +200,13 @@ def initialize_fixed_handlers(config, wandbconnector):
     # criterion
     criterionhandler = CriterionHandler(config['hyperparameters']['criterion_type'])
 
+    # device
+    devicehandler = DeviceHandler()
+
     # dataloader
     dataloaderhandler = DataLoaderHandler(config['dataloader'].getint('batch_size'),
                                           config['dataloader'].getint('num_workers'),
                                           config['dataloader'].getboolean('pin_memory'))
-
-    # device
-    devicehandler = DeviceHandler()
 
     # optimizer
     optimizerhandler = OptimizerHandler(config['hyperparameters']['optimizer_type'],

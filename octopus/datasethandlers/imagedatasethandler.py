@@ -31,6 +31,7 @@ class ImageDatasetHandler:
                  val_dir,
                  test_dir,
                  transforms_list):
+        logging.info('Initializing dataset handling...')
         self.data_dir = data_dir
         self.train_dir = train_dir
         self.val_dir = val_dir
@@ -39,12 +40,18 @@ class ImageDatasetHandler:
 
     def get_train_dataset(self):
         transform = _compose_transforms(self.transforms_list)
-        return ImageFolder(self.train_dir, transform=transform)
+        imf = ImageFolder(self.train_dir, transform=transform)
+        logging.info(f'Loaded {len(imf.imgs)} images as training data.')
+        return imf
 
     def get_val_dataset(self):
         transform = _compose_transforms(self.transforms_list)
-        return ImageFolder(self.val_dir, transform=transform)
+        imf = ImageFolder(self.val_dir, transform=transform)
+        logging.info(f'Loaded {len(imf.imgs)} images as validation data.')
+        return imf
 
     def get_test_dataset(self):
-        return ImageFolder(self.test_dir)
-
+        imf = None
+        # imf = ImageFolder(self.test_dir)
+        # logging.info(f'Loaded {len(imf.imgs)} images as test data.')
+        return imf

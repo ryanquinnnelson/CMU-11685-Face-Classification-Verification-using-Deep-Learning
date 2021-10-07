@@ -36,6 +36,7 @@ def _convert_dict_to_dicts(d):
 class CnnHandler:
     def __init__(self,
                  model_type, input_size, output_size, activation_func, batch_norm, conv_dict, pool_class, pool_dict):
+        logging.info('Initializing model handling...')
         self.model_type = model_type
         self.input_size = input_size
         self.output_size = output_size

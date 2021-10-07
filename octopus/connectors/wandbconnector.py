@@ -22,7 +22,7 @@ class WandbConnector:
         self.wandb_config = None
 
     def setup(self):
-        logging.info('Setting up wandb connector...')
+        logging.info('Setting up wandb connection...')
 
         # ensure wandb_dir exists
         utilities.create_directory(self.wandb_dir)

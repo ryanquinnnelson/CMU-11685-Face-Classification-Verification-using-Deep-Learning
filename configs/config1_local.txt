@@ -48,13 +48,19 @@ val_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-
 test_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/test_data
 transforms_list=RandomHorizontalFlip,ToTensor
 
+
+
+
 [output]
 output_dir = /Users/ryanqnelson/Desktop/test/output
 
+
+
+
 [dataloader]
-dataloader_num_workers=8
-dataloader_pin_memory=True
-dataloader_batch_size=128
+num_workers=8
+pin_memory=True
+batch_size=128
 
 
 [model]

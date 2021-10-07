@@ -10,6 +10,7 @@ import numpy as np
 
 class Testing:
     def __init__(self, test_loader, devicehandler):
+        logging.info('Loading testing phase...')
         self.test_loader = test_loader
         self.devicehandler = devicehandler
 

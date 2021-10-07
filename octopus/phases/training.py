@@ -10,6 +10,7 @@ import torch
 class Training:
 
     def __init__(self, train_loader, criterion_func, devicehandler):
+        logging.info('Loading training phase...')
         self.train_loader = train_loader
         self.criterion_func = criterion_func
         self.devicehandler = devicehandler

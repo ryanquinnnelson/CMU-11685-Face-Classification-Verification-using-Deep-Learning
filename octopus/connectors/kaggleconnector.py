@@ -24,7 +24,7 @@ class KaggleConnector:
         self.competition_dir = os.path.join(content_dir, 'competitions', competition)
 
     def setup(self):
-        logging.info('Setting up kaggle connector...')
+        logging.info('Setting up kaggle connection...')
 
         # download and install library
         _install()
