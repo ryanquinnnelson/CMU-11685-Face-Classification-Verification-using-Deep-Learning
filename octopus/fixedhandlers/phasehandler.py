@@ -71,7 +71,7 @@ class PhaseHandler:
             # save model checkpoint
             self.checkpointhandler.save(model, optimizer, scheduler, epoch + 1, self.statshandler.stats)
 
-            # # check if early stopping criteria is met
-            # if self.statshandler.stopping_criteria_is_met(epoch, self.wandbconnector):
-            #     logging.info('Early stopping criteria is met. Stopping the training process...')
-            #     break  # stop running epochs
+            # check if early stopping criteria is met
+            if self.statshandler.stopping_criteria_is_met(epoch, self.wandbconnector):
+                logging.info('Early stopping criteria is met. Stopping the training process...')
+                break  # stop running epochs

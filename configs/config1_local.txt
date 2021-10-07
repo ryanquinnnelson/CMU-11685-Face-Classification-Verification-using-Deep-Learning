@@ -34,7 +34,7 @@ tags = CNN,octopus
 [stats]
 comparison_metric=val_acc
 comparison_best_is_max=True
-comparison_patience=20
+comparison_patience=5
 val_metric_name=val_acc
 
 
@@ -60,7 +60,7 @@ output_dir = /Users/ryanqnelson/Desktop/test/output
 [dataloader]
 num_workers=8
 pin_memory=True
-batch_size=10
+batch_size=128
 
 
 [model]

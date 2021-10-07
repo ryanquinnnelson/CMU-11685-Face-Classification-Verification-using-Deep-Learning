@@ -21,17 +21,17 @@ def _calculate_num_hits(out, actual):
     out: 2D tensor (torch.FloatTensor), each row has 71 columns (one for each possible label)
     actual: 1D tensor (torch.LongTensor)
     """
-    print('out', out)
+    # print('out', out)
 
     # retrieve labels from device by converting to numpy arrays
     actual = actual.cpu().detach().numpy()
-    print('actual', actual)
+    # print('actual', actual)
     # convert output to class labels
     pred = _convert_output(out)
-    print('pred', pred)
+    # print('pred', pred)
     # compare predictions against actual
     n_hits = np.sum(pred == actual)
-    print('hits', n_hits)
+    # print('hits', n_hits)
     return n_hits
 
 

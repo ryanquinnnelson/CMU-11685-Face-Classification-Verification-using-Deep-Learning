@@ -42,7 +42,6 @@ class ImageDatasetHandler:
 
     def get_train_dataset(self):
         transform = _compose_transforms(self.transforms_list)
-        print(transform)
         imf = ImageFolder(self.train_dir, transform=transform)
         logging.info(f'Loaded {len(imf.imgs)} images as training data.')
         return imf
