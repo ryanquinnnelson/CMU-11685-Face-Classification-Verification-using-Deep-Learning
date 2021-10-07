@@ -35,7 +35,7 @@ from customized.evaluation import Evaluation
 
 class Octopus:
 
-    def __init__(self, config):
+    def __init__(self, config, config_file):
         # save configuration
         self.config = config
 
@@ -43,6 +43,7 @@ class Octopus:
         _setup_logging(config['debug']['debug_file'])
         _draw_logo()
         logging.info('Initializing octopus...')
+        logging.info(f'Parsing configuration from {config_file}...')
 
         # connectors
         self.kaggleconnector, self.wandbconnector = initialize_connectors(config)

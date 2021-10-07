@@ -5,22 +5,29 @@ __author__ = 'ryanquinnnelson'
 
 import configparser
 import sys
+import glob
+import os
 
 from octopus.octopus import Octopus
 
 
 def main():
-    # parse config file
+    # run octopus for each config file found in the path
     config_path = sys.argv[1]
-    config = configparser.ConfigParser()
-    config.read(config_path)
+    filenames = glob.glob(os.path.join(config_path, '*'))
+    filenames.sort()
+    for f in filenames:
 
-    # run octopus
-    octopus = Octopus(config)
-    octopus.setup_environment()
-    octopus.download_data()
-    octopus.run_pipeline()
-    octopus.cleanup()
+        # parse configs
+        config = configparser.ConfigParser()
+        config.read(f)
+
+        # run octopus
+        octopus = Octopus(config,f)
+        octopus.setup_environment()
+        octopus.download_data()
+        octopus.run_pipeline()
+        octopus.cleanup()
 
 
 if __name__ == "__main__":

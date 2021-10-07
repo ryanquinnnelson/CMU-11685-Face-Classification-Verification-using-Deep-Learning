@@ -42,10 +42,10 @@ val_metric_name=val_acc
 
 [data]
 data_type = image
-data_dir = /Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification
-train_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/train_data
-val_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/val_data
-test_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/idl-fall21-hw2p2s1-face-classification/test_data
+data_dir = /Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification
+train_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/train_data
+val_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/val_data
+test_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/test_data
 transforms_list=RandomHorizontalFlip,ToTensor
 
 
@@ -86,7 +86,7 @@ checkpoint_file =  None
 
 
 [hyperparameters]
-num_epochs = 3
+num_epochs = 1
 criterion_type=CrossEntropyLoss
 optimizer_type=Adam
 optimizer_kwargs=lr=0.001

@@ -13,23 +13,27 @@ class TestDataset(Dataset):
         # get all filenames in numerical order
         filenames = glob.glob(test_dir + '/*.jpg')
         filenames.sort(key=lambda e: int(os.path.basename(e).split('.')[0]))
+        self.imgs = filenames
 
-        # process images
-        tensors = []
-        transform = transforms.ToTensor()
-        for f in filenames:
-            # open image
-            img = Image.open(f).convert('RGB')
-
-            # convert into a Tensor
-            tensors.append(transform(img))
-
-        # stack all tensors into a single tensor
-        self.data = torch.stack(tensors)
+        # # process images
+        # tensors = []
+        #
+        # for f in filenames:
+        #
+        #
+        # # stack all tensors into a single tensor
+        # self.data = torch.stack(tensors)
         self.length = len(filenames)
 
     def __len__(self):
         return self.length
 
     def __getitem__(self, index):
-        return self.data[index]
+        f = self.imgs[index]
+
+        # open image
+        img = Image.open(f).convert('RGB')
+
+        # convert into a Tensor
+        transform = transforms.ToTensor()
+        return transform(img)
