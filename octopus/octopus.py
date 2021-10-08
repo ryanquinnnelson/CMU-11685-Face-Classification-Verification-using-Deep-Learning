@@ -123,6 +123,7 @@ class Octopus:
         logging.info('octopus has finished running the pipeline.')
 
     def cleanup(self):
+        self.wandbconnector.run.finish()  # finish logging for this run
         logging.info('octopus shutdown complete.')
 
 

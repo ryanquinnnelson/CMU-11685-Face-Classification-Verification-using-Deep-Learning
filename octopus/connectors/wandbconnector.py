@@ -20,6 +20,7 @@ class WandbConnector:
         self.tags = tags
         self.config = config
         self.wandb_config = None
+        self.run = None
 
     def setup(self):
         logging.info('Setting up wandb connection...')
@@ -35,12 +36,13 @@ class WandbConnector:
         logging.info('Initializing wandb...')
 
         import wandb
-        wandb.init(dir=self.wandb_dir,
-                   name=self.run_name,
-                   project=self.project,
-                   notes=self.notes,
-                   tags=self.tags,
-                   config=self.config)
+        self.run = wandb.init(dir=self.wandb_dir,
+                              name=self.run_name,
+                              project=self.project,
+                              notes=self.notes,
+                              tags=self.tags,
+                              config=self.config,
+                              reinit=True)
 
         return wandb.config
 
@@ -134,6 +136,3 @@ def _login():
 
     import wandb
     wandb.login()
-
-
-
