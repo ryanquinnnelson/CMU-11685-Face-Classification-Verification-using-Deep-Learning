@@ -54,12 +54,20 @@ class Evaluation:
             model.eval()
 
             # process mini-batches
-            for (inputs, targets) in self.val_loader:
+            for i, (inputs, targets) in enumerate(self.val_loader):
                 # prep
                 inputs, targets = self.devicehandler.move_data_to_device(model, inputs, targets)
 
+                if i == 0 or i == 1:
+                    print()
+                    print(i, 'target', targets.shape, targets[:2])
+
                 # forward pass
                 out = model.forward(inputs)
+                if i == 0 or i == 1:
+                    print('out', out.shape, out[:2])
+                    print('pred', _convert_output(out).shape, _convert_output(out[:2]))
+                    print()
 
                 # calculate validation loss
                 loss = self.criterion_func(out, targets)
