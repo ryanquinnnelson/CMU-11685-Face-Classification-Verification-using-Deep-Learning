@@ -14,15 +14,6 @@ class TestDataset(Dataset):
         filenames = glob.glob(test_dir + '/*.jpg')
         filenames.sort(key=lambda e: int(os.path.basename(e).split('.')[0]))
         self.imgs = filenames
-
-        # # process images
-        # tensors = []
-        #
-        # for f in filenames:
-        #
-        #
-        # # stack all tensors into a single tensor
-        # self.data = torch.stack(tensors)
         self.length = len(filenames)
 
     def __len__(self):
