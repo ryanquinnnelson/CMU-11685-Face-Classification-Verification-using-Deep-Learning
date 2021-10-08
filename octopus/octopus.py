@@ -136,13 +136,23 @@ def _setup_logging(debug_file):
     if os.path.isfile(debug_file):
         os.remove(debug_file)
 
-    # write to both debug file and stdout
-    # https://youtrack.jetbrains.com/issue/PY-39762
-    # noinspection PyArgumentList
-    logging.basicConfig(level=logging.INFO,
-                        format="%(asctime)s [%(levelname)s] %(message)s",
-                        handlers=[logging.FileHandler(debug_file), logging.StreamHandler(sys.stdout)]
-                        )
+    # define basic logging
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+    logger.handlers = []  # clear out previous handlers
+
+    # write to stdout
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    # write to debug file
+    handler = logging.FileHandler(debug_file)
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 
 def _draw_logo():

@@ -5,7 +5,7 @@ run_name = Run-01
 
 
 [debug]
-debug_file = /home/ubuntu/debug.log
+debug_file = /home/ubuntu/debug1.log
 
 
 

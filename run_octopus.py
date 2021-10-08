@@ -17,13 +17,12 @@ def main():
     filenames = glob.glob(os.path.join(config_path, '*'))
     filenames.sort()
     for f in filenames:
-
         # parse configs
         config = configparser.ConfigParser()
         config.read(f)
 
         # run octopus
-        octopus = Octopus(config,f)
+        octopus = Octopus(config, f)
         octopus.setup_environment()
         octopus.download_data()
         octopus.run_pipeline()
