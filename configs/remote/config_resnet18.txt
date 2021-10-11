@@ -26,7 +26,7 @@ wandb_dir = /home/ubuntu/
 entity = ryanquinnnelson
 project = CMU-11685-HW2P2A-octopus
 notes = CNN Face Classification
-tags = CNN,octopus
+tags = CNN,octopus,Resnet18
 
 
 
@@ -64,14 +64,9 @@ batch_size=256
 
 
 [model]
-model_type=CNN2d
-input_size=64
-output_size=4000
-batch_norm=True
-activation_func=ReLU
-conv_kwargs=1.in_channels=3,1.out_channels=4,1.kernel_size=3,1.stride=1,1.padding=1,1.dilation=1
-pool_class=MaxPool2d
-pool_kwargs=1.kernel_size=2,1.stride=2,1.padding=0,1.dilation=1
+model_type=Resnet18
+in_features = 3
+num_classes = 4000
 
 
 
@@ -84,10 +79,10 @@ checkpoint_file =  None
 
 
 [hyperparameters]
-num_epochs = 10
+num_epochs = 40
 criterion_type=CrossEntropyLoss
-optimizer_type=Adam
-optimizer_kwargs=lr=0.1
+optimizer_type=SGD
+optimizer_kwargs=lr=0.05,weight_decay=0.00005,momentum=0.9
 scheduler_type=ReduceLROnPlateau
 scheduler_kwargs=factor=0.1,patience=5,mode=max,verbose=True
 scheduler_plateau_metric=val_acc

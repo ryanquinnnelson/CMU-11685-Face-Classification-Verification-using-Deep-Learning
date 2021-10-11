@@ -1,21 +1,13 @@
 """
-Simple Residual block
+All things Resnet.
 """
 
 __author__ = 'ryanquinnnelson'
 
-import logging
-
 import torch.nn as nn
 
 
-def _calc_output_size(input_size, padding, dilation, kernel_size, stride):
-    input_size_padded = input_size + 2 * padding
-    kernel_dilated = (kernel_size - 1) * (dilation - 1) + kernel_size
-    output_size = (input_size_padded - kernel_dilated) // stride + 1
-    return output_size
-
-
+# Identical to class presented in Recitation 6
 class SimpleResidualBlock(nn.Module):
     def __init__(self, channel_size, stride=1):
         super().__init__()
@@ -38,7 +30,7 @@ class SimpleResidualBlock(nn.Module):
         return out
 
 
-# https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
+# Inspiration from https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
 class ResidualBlock(nn.Module):
 
     def __init__(self, in_channels, out_channels):
@@ -81,35 +73,43 @@ class ResidualBlock(nn.Module):
         return out
 
 
-# https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
+# Inspiration from https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
 class Resnet18(nn.Module):
     def __init__(self, in_features, num_classes):
         super().__init__()
 
         self.layers = nn.Sequential(
+            # conv1
             nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
 
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
 
-            # layer 1
+            # conv2..x
             ResidualBlock(64, 64),
             ResidualBlock(64, 64),
 
+            # conv3..x
             ResidualBlock(64, 128),
             ResidualBlock(128, 128),
 
+            # conv4..x
             ResidualBlock(128, 256),
             ResidualBlock(256, 256),
 
+            # conv5..x
             ResidualBlock(256, 512),
             ResidualBlock(512, 512),
 
+            # summary
             nn.AdaptiveAvgPool2d((1, 1)),
             nn.Flatten(),
         )
-        self.linear = nn.Linear(512, num_classes)
+        # decoding layer
+        self.linear = nn.Sequential(
+            nn.Linear(512, num_classes),
+            nn.Softmax(dim=1))
 
     def forward(self, x, return_embedding=False):
         embedding = self.layers(x)
