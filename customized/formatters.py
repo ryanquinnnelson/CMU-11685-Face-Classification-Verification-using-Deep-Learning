@@ -11,7 +11,6 @@ def _convert_output(out):
 
 class OutputFormatter:
     def format_output(self, out):
-
         labels = _convert_output(out)
 
         # add an index column
@@ -29,6 +28,6 @@ class OutputFormatter:
         df = df.drop(['idprefix', 'idsuffix'], axis=1)
 
         # ensure id is first column
-        df = df[['id','label']]
+        df = df[['id', 'label']]
 
         return df
