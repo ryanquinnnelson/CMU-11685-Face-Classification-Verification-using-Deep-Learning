@@ -41,7 +41,7 @@ class Octopus:
         self.config = config
 
         # logging
-        _setup_logging(config['debug']['debug_file'])
+        _setup_logging(config['debug']['debug_path'], config['DEFAULT']['run_name'])
         _draw_logo()
         logging.info('Initializing octopus...')
         logging.info(f'Parsing configuration from {config_file}...')
@@ -128,11 +128,13 @@ class Octopus:
         logging.info('octopus shutdown complete.')
 
 
-def _setup_logging(debug_file):
+def _setup_logging(debug_path, run_name):
     # create directory if it doesn't exist
-    debug_path = os.path.dirname(debug_file)
     if not os.path.isdir(debug_path):
         os.mkdir(debug_path)
+
+    # generate filename
+    debug_file = os.path.join(debug_path, 'debug.' + run_name + '.log')
 
     # delete older debug file if it exists
     if os.path.isfile(debug_file):

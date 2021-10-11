@@ -5,7 +5,7 @@ run_name = Run-test
 
 
 [debug]
-debug_file = /Users/ryanqnelson/Desktop/test/debug.log
+debug_path = /Users/ryanqnelson/Desktop/test/
 
 
 
