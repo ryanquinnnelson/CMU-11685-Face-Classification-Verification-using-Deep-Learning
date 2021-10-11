@@ -2,7 +2,7 @@ import logging
 
 import octopus.models.resnets as resnets
 
-class CnnHandler:
+class ResnetHandler:
     def __init__(self,model_type, in_features, num_classes):
         logging.info('Initializing model handling...')
         self.model_type = model_type

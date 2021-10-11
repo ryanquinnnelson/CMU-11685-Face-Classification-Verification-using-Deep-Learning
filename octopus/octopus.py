@@ -25,6 +25,7 @@ from octopus.fixedhandlers.dataloaderhandler import DataLoaderHandler
 from octopus.fixedhandlers.outputhandler import OutputHandler
 from octopus.datasethandlers.imagedatasethandler import ImageDatasetHandler
 from octopus.modelhandlers.cnnhandler import CnnHandler
+from octopus.modelhandlers.resnethandler import ResnetHandler
 from octopus.phases.training import Training
 from octopus.phases.testing import Testing
 
@@ -282,6 +283,11 @@ def initialize_variable_handlers(config):
                                   _to_int_dict(config['model']['conv_kwargs']),
                                   config['model']['pool_class'],
                                   _to_int_dict(config['model']['pool_kwargs']))
+    elif config['model']['model_type'] == 'Resnet18':
+        modelhandler = ResnetHandler(config['model']['model_type'],
+                                     config['model'].getint('in_features'),
+                                     config['model'].getint('num_classes'))
+
     else:
         modelhandler = None
 
