@@ -44,29 +44,26 @@ class ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
 
-        self.expansion = 1
-        self.in_channels = in_channels
-        self.out_channels = out_channels
         self.stride = 2 if in_channels != out_channels else 1
 
         self.blocks = nn.Sequential(
 
             # first conv layer
-            nn.Conv2d(self.in_channels, self.out_channels, kernel_size=3, stride=self.stride, padding=1, bias=False),
-            nn.BatchNorm2d(self.out_channels),
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=self.stride, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
 
             # second conv layer
-            nn.Conv2d(self.out_channels, self.out_channels, kernel_size=3, stride=1, padding=1, bias=False),
-            nn.BatchNorm2d(self.out_channels))
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels))
 
         # shortcut
-        if self.in_channels == self.out_channels:
+        if in_channels == out_channels:
             self.shortcut = nn.Identity()
         else:
             self.shortcut = nn.Sequential(
-                nn.Conv2d(self.in_channels, self.out_channels, kernel_size=1, stride=self.stride, bias=False),
-                nn.BatchNorm2d(self.out_channels)
+                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=self.stride, bias=False),
+                nn.BatchNorm2d(out_channels)
             )
 
         self.activate = nn.ReLU(inplace=True)
