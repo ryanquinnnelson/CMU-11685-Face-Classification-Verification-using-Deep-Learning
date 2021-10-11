@@ -118,3 +118,56 @@ class Resnet18(nn.Module):
             return embedding
         else:
             return self.linear(embedding)
+
+class Resnet34(nn.Module):
+    def __init__(self, in_features, num_classes):
+        super().__init__()
+
+        self.layers = nn.Sequential(
+            # conv1
+            nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+
+            # conv2..x
+            ResidualBlock(64, 64),
+            ResidualBlock(64, 64),
+            ResidualBlock(64, 64),
+
+            # conv3..x
+            ResidualBlock(64, 128),
+            ResidualBlock(128, 128),
+            ResidualBlock(128, 128),
+            ResidualBlock(128, 128),
+
+            # conv4..x
+            ResidualBlock(128, 256),
+            ResidualBlock(256, 256),
+            ResidualBlock(256, 256),
+            ResidualBlock(256, 256),
+            ResidualBlock(256, 256),
+            ResidualBlock(256, 256),
+
+            # conv5..x
+            ResidualBlock(256, 512),
+            ResidualBlock(512, 512),
+            ResidualBlock(512, 512),
+
+            # summary
+            nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(),
+        )
+        # decoding layer
+        self.linear = nn.Sequential(
+            nn.Linear(512, num_classes))
+        # nn.Softmax(dim=1))  # removed because it stopped model from improving and I don't know why. Could be dim=1.
+
+    def forward(self, x, return_embedding=False):
+        embedding = self.layers(x)
+
+        if return_embedding:
+            return embedding
+        else:
+            return self.linear(embedding)

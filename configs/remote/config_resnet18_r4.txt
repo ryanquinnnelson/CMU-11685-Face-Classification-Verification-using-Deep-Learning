@@ -34,7 +34,7 @@ tags = CNN,octopus,Resnet18
 [stats]
 comparison_metric=val_acc
 comparison_best_is_max=True
-comparison_patience=5
+comparison_patience=40
 val_metric_name=val_acc
 
 

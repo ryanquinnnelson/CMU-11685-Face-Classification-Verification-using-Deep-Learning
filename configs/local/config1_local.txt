@@ -1,5 +1,5 @@
 [DEFAULT]
-run_name = Run-04
+run_name = Run-test
 
 
 
@@ -60,11 +60,11 @@ output_dir = /Users/ryanqnelson/Desktop/test/output
 num_workers=8
 pin_memory=True
 batch_size=128
-transforms_list=RandomHorizontalFlip,ToTensor
+transforms_list=RandomHorizontalFlip,ToTensor,Normalize
 
 
 [model]
-model_type=Resnet18
+model_type=Resnet34
 in_features = 3
 num_classes = 4000
 

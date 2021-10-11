@@ -285,7 +285,7 @@ def initialize_variable_handlers(config):
                                   _to_int_dict(config['model']['conv_kwargs']),
                                   config['model']['pool_class'],
                                   _to_int_dict(config['model']['pool_kwargs']))
-    elif config['model']['model_type'] == 'Resnet18':
+    elif 'Resnet' in config['model']['model_type']:
         modelhandler = ResnetHandler(config['model']['model_type'],
                                      config['model'].getint('in_features'),
                                      config['model'].getint('num_classes'))

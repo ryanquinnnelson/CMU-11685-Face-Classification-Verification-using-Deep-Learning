@@ -1,11 +1,11 @@
 [DEFAULT]
-run_name = Run-03
+run_name = Run-06
 
 
 
 
 [debug]
-debug_file = /home/ubuntu/debug-03.log
+debug_file = /home/ubuntu/debug-06.log
 
 
 
@@ -60,7 +60,7 @@ output_dir = /home/ubuntu/output
 num_workers=8
 pin_memory=True
 batch_size=128
-transforms_list=RandomHorizontalFlip,RandomRotation,RandomVerticalFlip,ToTensor
+transforms_list=RandomHorizontalFlip,ToTensor,Normalize
 
 
 
