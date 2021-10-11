@@ -108,8 +108,8 @@ class Resnet18(nn.Module):
         )
         # decoding layer
         self.linear = nn.Sequential(
-            nn.Linear(512, num_classes),
-            nn.Softmax(dim=1))
+            nn.Linear(512, num_classes))
+        # nn.Softmax(dim=1))  # removed because it stopped model from improving
 
     def forward(self, x, return_embedding=False):
         embedding = self.layers(x)
