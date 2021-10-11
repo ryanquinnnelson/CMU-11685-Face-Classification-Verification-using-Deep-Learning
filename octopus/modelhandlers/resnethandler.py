@@ -17,6 +17,7 @@ class ResnetHandler:
         if self.model_type == 'Resnet18':
             model = resnets.Resnet18(self.in_features, self.num_classes)
 
+            # check if resnet18 matches official version
             # from torchsummary import summary
             # print(summary(model, (3, 224, 224)))
 

@@ -80,13 +80,14 @@ class ResidualBlock(nn.Module):
 
         return out
 
+
 # https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
 class Resnet18(nn.Module):
     def __init__(self, in_features, num_classes):
         super().__init__()
 
         self.layers = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False),
+            nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
 

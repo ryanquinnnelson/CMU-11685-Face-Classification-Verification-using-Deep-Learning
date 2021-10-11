@@ -19,7 +19,7 @@ class OptimizerHandler:
         opt = None
         if self.optimizer_type == 'Adam':
             opt = optim.Adam(model.parameters(), **self.optimizer_kwargs)
-        elif self.optimizer_type == 'SDG':
+        elif self.optimizer_type == 'SGD':
             opt = optim.SGD(model.parameters(), **self.optimizer_kwargs)
 
         logging.info(f'Optimizer initialized:\n{opt}')
