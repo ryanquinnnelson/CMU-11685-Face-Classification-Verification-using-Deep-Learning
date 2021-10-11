@@ -190,8 +190,10 @@ def initialize_connectors(config):
         kaggleconnector = None
 
     # wandb
+    # get all hyperparameters from different parts of config
     hyper_dict = dict(config['hyperparameters'])
-    hyper_dict.update(dict(config['model']))  # get all hyperparameters from different parts of config
+    hyper_dict.update(dict(config['model']))
+    hyper_dict.update(dict(config['dataloader']))
     wandbconnector = WandbConnector(config['wandb']['wandb_dir'],
                                     config['wandb']['entity'],
                                     config['DEFAULT']['run_name'],
@@ -269,7 +271,7 @@ def initialize_variable_handlers(config):
                                            config['data']['train_dir'],
                                            config['data']['val_dir'],
                                            config['data']['test_dir'],
-                                           _to_string_list(config['data']['transforms_list']))
+                                           _to_string_list(config['dataloader']['transforms_list']))
     else:
         inputhandler = None
 

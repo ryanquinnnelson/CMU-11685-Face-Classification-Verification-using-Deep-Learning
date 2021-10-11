@@ -46,7 +46,6 @@ data_dir = /home/ubuntu/content/competitions/idl-fall21-hw2p2s1-face-classificat
 train_dir=/home/ubuntu/content/competitions/idl-fall21-hw2p2s1-face-classification/train_data
 val_dir=/home/ubuntu/content/competitions/idl-fall21-hw2p2s1-face-classification/val_data
 test_dir=/home/ubuntu/content/competitions/idl-fall21-hw2p2s1-face-classification/test_data
-transforms_list=RandomHorizontalFlip,ToTensor
 
 
 
@@ -61,6 +60,8 @@ output_dir = /home/ubuntu/output
 num_workers=8
 pin_memory=True
 batch_size=256
+transforms_list=RandomHorizontalFlip,ToTensor
+
 
 
 [model]

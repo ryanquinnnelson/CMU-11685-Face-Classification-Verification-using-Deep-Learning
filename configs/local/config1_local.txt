@@ -46,7 +46,6 @@ data_dir = /Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2
 train_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/train_data
 val_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/val_data
 test_dir=/Users/ryanqnelson/Desktop/test/content/competitions/idl-fall21-hw2p2s1-face-classification/test_data
-transforms_list=RandomHorizontalFlip,ToTensor
 
 
 
@@ -61,6 +60,7 @@ output_dir = /Users/ryanqnelson/Desktop/test/output
 num_workers=8
 pin_memory=True
 batch_size=128
+transforms_list=RandomHorizontalFlip,ToTensor
 
 
 [model]
