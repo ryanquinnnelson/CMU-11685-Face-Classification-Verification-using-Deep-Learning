@@ -80,7 +80,7 @@ class ResidualBlock(nn.Module):
 
         return out
 
-
+# https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
 class Resnet18(nn.Module):
     def __init__(self, in_features, num_classes):
         super().__init__()

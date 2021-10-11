@@ -66,7 +66,7 @@ batch_size=128
 [model]
 model_type=Resnet18
 in_features = 3
-num_classes = 1000
+num_classes = 4000
 
 #input_size=64
 #output_size=4000
@@ -88,8 +88,8 @@ checkpoint_file =  None
 [hyperparameters]
 num_epochs = 1
 criterion_type=CrossEntropyLoss
-optimizer_type=Adam
-optimizer_kwargs=lr=0.1
+optimizer_type=SGD
+optimizer_kwargs=lr=0.05,weight_decay=0.00005,momentum=0.9
 scheduler_type=ReduceLROnPlateau
 scheduler_kwargs=factor=0.1,patience=5,mode=max,verbose=True
 scheduler_plateau_metric=val_acc
