@@ -19,6 +19,12 @@ def _compose_transforms(transforms_list):
             t_list.append(transforms.RandomHorizontalFlip())
         elif each == 'ToTensor':
             t_list.append(transforms.ToTensor())
+        elif each == 'RandomRotation':
+            t_list.append(transforms.RandomRotation(degrees=180))
+        elif each == 'RandomVerticalFlip':
+            t_list.append(transforms.RandomVerticalFlip())
+        elif each == 'Normalize':
+            t_list.append(transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))  # tuple size == channels
 
     composition = transforms.Compose(t_list)
 
