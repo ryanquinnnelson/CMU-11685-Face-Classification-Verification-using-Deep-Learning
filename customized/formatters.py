@@ -16,7 +16,7 @@ class OutputFormatter:
 
         # add an index column
         df = pd.DataFrame(labels).reset_index(drop=False)
-        print(df.columns)
+        # print(df.columns)
         # change column names
         df = df.rename(columns={0: "label", 'index': 'idprefix'})
 
