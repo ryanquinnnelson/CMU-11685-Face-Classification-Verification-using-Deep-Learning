@@ -1,5 +1,5 @@
 [DEFAULT]
-run_name = Resnet34-Run-01
+run_name = Resnet34-Run-02
 
 
 
@@ -60,7 +60,7 @@ output_dir = /home/ubuntu/output
 num_workers=8
 pin_memory=True
 batch_size=256
-transforms_list=ToTensor
+transforms_list=RandomHorizontalFlip,ToTensor
 
 
 
