@@ -36,6 +36,9 @@ class ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
 
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+
         self.stride = 2 if in_channels != out_channels else 1
 
         self.blocks = nn.Sequential(
@@ -50,25 +53,23 @@ class ResidualBlock(nn.Module):
             nn.BatchNorm2d(out_channels))
 
         # shortcut
-        if in_channels == out_channels:
-            self.shortcut = nn.Identity()
-        else:
+        if in_channels != out_channels:
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=self.stride, bias=False),
                 nn.BatchNorm2d(out_channels)
             )
 
-        self.activate = nn.ReLU(inplace=True)
-
     def forward(self, x):
         # blocks
         out = self.blocks(x)
 
-        # shortcut
-        shortcut = self.shortcut(x)
+        if self.in_channels != self.out_channels:
+            # shortcut
+            shortcut = self.shortcut(x)
 
-        # combine
-        out = self.activate(out + shortcut)
+            # combine
+            activate = nn.ReLU(inplace=True)
+            out = activate(out + shortcut)
 
         return out
 
@@ -82,7 +83,7 @@ class Resnet18(nn.Module):
             # conv1
             nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
 
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
 
@@ -129,7 +130,7 @@ class Resnet34(nn.Module):
             # conv1
             nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
+            nn.ReLU(inplace=True),
 
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
 

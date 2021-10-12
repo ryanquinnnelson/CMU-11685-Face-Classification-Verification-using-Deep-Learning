@@ -26,12 +26,8 @@ class ResnetHandler:
         if self.model_type == 'Resnet34':
             model = resnets.Resnet34(self.in_features, self.num_classes)
 
-            # check if resnet34 matches official version
-            # from torchsummary import summary
-            # print(summary(model, (3, 224, 224)))
-            # print()
-            # import torchvision.models as md
-            # print(summary(md.resnet34(False), (3, 224, 224)))
+        if self.model_type == 'Resnet50':
+            model = resnets.Resnet50(self.in_features, self.num_classes)
 
         logging.info(f'Model initialized:\n{model}')
         return model
