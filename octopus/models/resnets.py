@@ -286,3 +286,165 @@ class Resnet50(nn.Module):
             return embedding
         else:
             return self.linear(embedding)
+
+
+class Resnet101(nn.Module):
+    def __init__(self, in_features, num_classes):
+        super().__init__()
+
+        self.layers = nn.Sequential(
+            # conv1
+            nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+
+            # conv2..x
+            BottleneckResidualBlock(64, 64, use_shortcut=True, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(256, 64, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(256, 64, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            # conv3..x
+            BottleneckResidualBlock(256, 128, use_shortcut=True, mid_stride=2, shortcut_stride=2),
+            BottleneckResidualBlock(512, 128, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(512, 128, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(512, 128, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            # conv4..x
+            BottleneckResidualBlock(512, 256, use_shortcut=True, mid_stride=2, shortcut_stride=2),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            # conv5..x
+            BottleneckResidualBlock(1024, 512, use_shortcut=True, mid_stride=2, shortcut_stride=2),
+            BottleneckResidualBlock(2048, 512, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(2048, 512, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            # summary
+            nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(),
+        )
+        # decoding layer
+        self.linear = nn.Sequential(
+            nn.Linear(2048, num_classes))
+
+    def forward(self, x, return_embedding=False):
+        embedding = self.layers(x)
+
+        if return_embedding:
+            return embedding
+        else:
+            return self.linear(embedding)
+
+
+class Resnet152(nn.Module):
+    def __init__(self, in_features, num_classes):
+        super().__init__()
+
+        self.layers = nn.Sequential(
+            # conv1
+            nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+
+            # conv2..x
+            BottleneckResidualBlock(64, 64, use_shortcut=True, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(256, 64, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(256, 64, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            # conv3..x
+            BottleneckResidualBlock(256, 128, use_shortcut=True, mid_stride=2, shortcut_stride=2),
+            BottleneckResidualBlock(512, 128, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(512, 128, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(512, 128, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(512, 128, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(512, 128, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(512, 128, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(512, 128, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            # conv4..x
+            BottleneckResidualBlock(512, 256, use_shortcut=True, mid_stride=2, shortcut_stride=2),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(1024, 256, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            # conv5..x
+            BottleneckResidualBlock(1024, 512, use_shortcut=True, mid_stride=2, shortcut_stride=2),
+            BottleneckResidualBlock(2048, 512, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+            BottleneckResidualBlock(2048, 512, use_shortcut=False, mid_stride=1, shortcut_stride=1),
+
+            # summary
+            nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(),
+        )
+        # decoding layer
+        self.linear = nn.Sequential(
+            nn.Linear(2048, num_classes))
+
+    def forward(self, x, return_embedding=False):
+        embedding = self.layers(x)
+
+        if return_embedding:
+            return embedding
+        else:
+            return self.linear(embedding)

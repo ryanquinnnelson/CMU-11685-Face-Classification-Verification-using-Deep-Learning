@@ -1,5 +1,5 @@
 [DEFAULT]
-run_name = Resnet50-Run-01
+run_name = Resnet50-Run-03
 
 
 
@@ -26,7 +26,7 @@ wandb_dir = /home/ubuntu/
 entity = ryanquinnnelson
 project = CMU-11685-HW2P2A-octopus
 notes = CNN Face Classification
-tags = CNN,octopus,Resnet34
+tags = CNN,octopus,Resnet50
 
 
 
@@ -83,7 +83,7 @@ checkpoint_file =  None
 num_epochs = 50
 criterion_type=CrossEntropyLoss
 optimizer_type=SGD
-optimizer_kwargs=lr=0.1,weight_decay=0.0001,momentum=0.9
+optimizer_kwargs=lr=0.005,weight_decay=0.0001,momentum=0.9
 scheduler_type=ReduceLROnPlateau
 scheduler_kwargs=factor=0.1,patience=3,mode=max,verbose=True
 scheduler_plateau_metric=val_acc
