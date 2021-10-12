@@ -1,5 +1,5 @@
 [DEFAULT]
-run_name = Resnet34-Run-08
+run_name = Resnet18-Run-08
 
 
 
@@ -11,7 +11,7 @@ debug_path = /home/ubuntu
 
 
 [kaggle]
-download_from_kaggle = False
+download_from_kaggle = True
 kaggle_dir = /home/ubuntu/.kaggle
 content_dir = /home/ubuntu/content/
 token_file = /home/ubuntu/kaggle.json
@@ -26,7 +26,7 @@ wandb_dir = /home/ubuntu/
 entity = ryanquinnnelson
 project = CMU-11685-HW2P2A-octopus
 notes = CNN Face Classification
-tags = CNN,octopus,Resnet34
+tags = CNN,octopus,Resnet18
 
 
 
@@ -65,7 +65,7 @@ transforms_list=RandomHorizontalFlip,ToTensor
 
 
 [model]
-model_type=Resnet34
+model_type=Resnet18
 in_features = 3
 num_classes = 4000
 
