@@ -31,4 +31,4 @@ class TestDataset(Dataset):
 
         # convert into a Tensor
         transform = transforms.ToTensor()
-        return transform(img)
+        return transform(img), os.path.basename(f)
