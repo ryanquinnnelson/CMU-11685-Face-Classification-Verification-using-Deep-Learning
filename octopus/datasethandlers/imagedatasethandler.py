@@ -20,11 +20,17 @@ def _compose_transforms(transforms_list):
         elif each == 'ToTensor':
             t_list.append(transforms.ToTensor())
         elif each == 'RandomRotation':
-            t_list.append(transforms.RandomRotation(degrees=180))
+            t_list.append(transforms.RandomRotation(degrees=30))
         elif each == 'RandomVerticalFlip':
             t_list.append(transforms.RandomVerticalFlip())
         elif each == 'Normalize':
             t_list.append(transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))  # tuple size == channels
+        elif each == 'RandomAffine':
+            t_list.append(transforms.RandomAffine(degrees=10, scale=(0.9, 1.1), shear=(-30, 30)))
+        elif each == 'ColorJitter':
+            t_list.append(transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
+        elif each == 'RandomResizedCrop':
+            t_list.append(transforms.RandomResizedCrop(size=64, scale=(0.8, 1.0)))
 
     composition = transforms.Compose(t_list)
 
