@@ -1,5 +1,5 @@
 [DEFAULT]
-run_name = Resnet50-Run-02
+run_name = Resnet152-Run-01
 
 
 
@@ -11,7 +11,7 @@ debug_path = /home/ubuntu
 
 
 [kaggle]
-download_from_kaggle = True
+download_from_kaggle = False
 kaggle_dir = /home/ubuntu/.kaggle
 content_dir = /home/ubuntu/content/
 token_file = /home/ubuntu/kaggle.json
@@ -26,7 +26,7 @@ wandb_dir = /home/ubuntu/
 entity = ryanquinnnelson
 project = CMU-11685-HW2P2A-octopus
 notes = CNN Face Classification
-tags = CNN,octopus,Resnet50
+tags = CNN,octopus,Resnet152
 
 
 
@@ -60,12 +60,12 @@ output_dir = /home/ubuntu/output
 num_workers=8
 pin_memory=True
 batch_size=256
-transforms_list=RandomHorizontalFlip,ToTensor
+transforms_list=RandomHorizontalFlip,ColorJitter,RandomAffine,RandomResizedCrop,RandomRotation,ToTensor
 
 
 
 [model]
-model_type=Resnet50
+model_type=Resnet152
 in_features = 3
 num_classes = 4000
 
@@ -83,7 +83,7 @@ checkpoint_file =  None
 num_epochs = 50
 criterion_type=CrossEntropyLoss
 optimizer_type=SGD
-optimizer_kwargs=lr=0.05,weight_decay=0.0001,momentum=0.9
+optimizer_kwargs=lr=0.005,weight_decay=0.00001,momentum=0.9
 scheduler_type=ReduceLROnPlateau
-scheduler_kwargs=factor=0.1,patience=3,mode=max,verbose=True
+scheduler_kwargs=factor=0.1,patience=2,mode=max,verbose=True
 scheduler_plateau_metric=val_acc

@@ -24,7 +24,9 @@ class Testing:
             model.eval()
 
             # process mini-batches
-            for batch in self.test_loader:
+            for i, batch in enumerate(self.test_loader):
+                # print(i)
+                #     print(batch[:2])
 
                 if type(batch) is tuple:
                     # loader contains inputs and targets
@@ -45,4 +47,11 @@ class Testing:
                 out = out.cpu().detach().numpy()  # extract from gpu if necessary
                 output.append(out)
 
-        return np.concatenate(output, axis=0)
+                # if i < 2:
+                #     print('out\n', np.argmax(out, axis=1))
+                #     print()
+                # print(i, 'output length', out.shape)
+
+        combined = np.concatenate(output, axis=0)
+        # print('combined', combined.shape)
+        return combined

@@ -7,6 +7,8 @@ import logging
 
 import torch
 import numpy as np
+import pandas as pd
+from datetime import datetime
 
 
 def _convert_output(out):
@@ -18,7 +20,7 @@ def _convert_output(out):
 
 def _calculate_num_hits(out, actual):
     """
-    out: 2D tensor (torch.FloatTensor), each row has 71 columns (one for each possible label)
+    out: 2D tensor (torch.FloatTensor)
     actual: 1D tensor (torch.LongTensor)
     """
     # print('out', out)
@@ -45,6 +47,8 @@ class Evaluation:
 
     def evaluate_model(self, epoch, num_epochs, model):
         logging.info(f'Running epoch {epoch}/{num_epochs} of evaluation...')
+        output_list = []
+        targets_list = []
         val_loss = 0
         num_hits = 0
 
@@ -60,13 +64,13 @@ class Evaluation:
 
                 # if i == 0 or i == 1:
                 #     print()
-                #     print(i, 'target', targets.shape, targets[:2])
+                #     print(i, 'target', targets.shape, targets[:20])
 
                 # forward pass
                 out = model.forward(inputs)
                 # if i == 0 or i == 1:
-                #     print('out', out.shape, out[:2])
-                #     print('pred', _convert_output(out).shape, _convert_output(out[:2]))
+                #     # print('out', out.shape, out[:2])
+                #     print('pred', _convert_output(out).shape, _convert_output(out[:20]))
                 #     print()
 
                 # calculate validation loss
@@ -77,6 +81,10 @@ class Evaluation:
                 out = out.cpu().detach().numpy()  # extract from gpu
                 num_hits += _calculate_num_hits(out, targets)
 
+                # debug save output
+                output_list.append(_convert_output(out))
+                targets_list.append(targets.cpu().detach().numpy())
+
                 # delete mini-batch from device
                 del inputs
                 del targets
@@ -84,5 +92,15 @@ class Evaluation:
             # calculate evaluation metrics
             val_loss /= len(self.val_loader)  # average per mini-batch
             val_acc = num_hits / len(self.val_loader.dataset)
+
+            # debug write output
+            combined_output = np.concatenate(output_list, axis=0)
+            combined_targets = np.concatenate(targets_list, axis=0)
+            df_output = pd.DataFrame(combined_output)
+            df_targets = pd.DataFrame(combined_targets)
+            df = pd.concat([df_output, df_targets],axis=1)
+            fname = f'/home/ubuntu/evaluation.epoch{epoch}.{datetime.now().strftime("%Y%m%d.%H.%M.%S")}.csv'
+            logging.info(f'evaluation filename:{fname}')
+            df.to_csv(fname, header=False, index=False)
 
             return val_loss, val_acc

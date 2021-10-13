@@ -3,7 +3,6 @@ import os
 
 from torch.utils.data import Dataset
 from PIL import Image
-import torch
 import torchvision.transforms as transforms
 
 
@@ -16,14 +15,19 @@ class TestDataset(Dataset):
         self.imgs = filenames
         self.length = len(filenames)
 
+        # for each in self.imgs[:50]:
+        #     print(each)
+
     def __len__(self):
         return self.length
 
     def __getitem__(self, index):
+        # if index % 256 == 0:
+        #     print('getitem',index)
         f = self.imgs[index]
 
         # open image
-        img = Image.open(f).convert('RGB')
+        img = Image.open(f) #.convert('RGB') #?? should I not be converting to RGB?
 
         # convert into a Tensor
         transform = transforms.ToTensor()
