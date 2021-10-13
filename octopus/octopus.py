@@ -21,7 +21,6 @@ from octopus.fixedhandlers.optimizerhandler import OptimizerHandler
 from octopus.fixedhandlers.schedulerhandler import SchedulerHandler
 from octopus.fixedhandlers.statshandler import StatsHandler
 from octopus.fixedhandlers.phasehandler import PhaseHandler
-from octopus.fixedhandlers.phasehandler import PhaseHandler2
 from octopus.fixedhandlers.dataloaderhandler import DataLoaderHandler
 from octopus.fixedhandlers.outputhandler import OutputHandler
 from octopus.datasethandlers.imagedatasethandler import ImageDatasetHandler
@@ -29,7 +28,6 @@ from octopus.modelhandlers.cnnhandler import CnnHandler
 from octopus.modelhandlers.resnethandler import ResnetHandler
 from octopus.phases.training import Training
 from octopus.phases.testing import Testing
-from octopus.phases.testing import Testing2
 
 # customized to this data
 from customized.formatters import OutputFormatter
@@ -118,7 +116,7 @@ class Octopus:
         # load phases
         training = Training(train_loader, loss_func, self.devicehandler)
         evaluation = Evaluation(val_loader, loss_func, self.devicehandler)
-        testing = Testing2(test_loader, self.devicehandler)
+        testing = Testing(test_loader, self.devicehandler)
 
         # run epochs
         self.phasehandler.process_epochs(model, optimizer, scheduler, training, evaluation, testing)
@@ -252,14 +250,14 @@ def initialize_fixed_handlers(config, wandbconnector):
     else:
         checkpoint_file = None
 
-    phasehandler = PhaseHandler2(config['hyperparameters'].getint('num_epochs'),
+    phasehandler = PhaseHandler(config['hyperparameters'].getint('num_epochs'),
                                 outputhandler,
                                 devicehandler,
                                 statshandler,
                                 checkpointhandler,
                                 schedulerhandler,
                                 wandbconnector,
-                                OutputFormatter(),
+                                OutputFormatter(config['data']['data_dir']),
                                 config['checkpoint'].getboolean('load_from_checkpoint'),
                                 checkpoint_file)
 

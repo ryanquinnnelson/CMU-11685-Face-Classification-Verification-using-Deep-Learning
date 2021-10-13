@@ -1,9 +1,35 @@
 """
 All things related to data reading and writing.
+
+Note 1:
+ImageFolder uses alphabetical order when mapping directories to classes:
+
+/train_data/0/<images>
+/train_data/1/<images>
+/train_data/2/<images>
+:
+/train_data/10/<images>
+
+becomes
+
+{'0': 0,
+'1': 1,
+'10': 2,
+'2': 3}
+
+where directory 10 maps to class 2 according to ImageFolder. This can cause issues if you write a custom Dataset
+class for test data and index numerically. The simplest workaround is to remap the assigned labels from the test output
+using the class_to_idx dictionary from ImageFolder.
+
+mapping = imf.class_to_idx
+test_label=2
+list(mapping.keys())[list(mapping.values()).index(test_label)]  #'10'
 """
 __author__ = 'ryanquinnnelson'
 
 import logging
+import json
+import os
 
 import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
@@ -56,6 +82,15 @@ class ImageDatasetHandler:
         transform = _compose_transforms(self.transforms_list)
         imf = ImageFolder(self.train_dir, transform=transform)
         logging.info(f'Loaded {len(imf.imgs)} images as training data.')
+
+        # dump json file with class to index mapping for use during testing (see Note 1 above)
+        mapping = imf.class_to_idx
+
+        mapping_dest = os.path.join(self.data_dir, 'class_to_idx.json')
+        logging.info(f'Writing class_to_idx mapping to {mapping_dest}...')
+        with open(mapping_dest, 'w') as file:
+            json.dump(mapping, file)
+
         return imf
 
     def get_val_dataset(self):

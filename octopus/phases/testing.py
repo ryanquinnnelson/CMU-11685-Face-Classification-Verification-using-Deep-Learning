@@ -58,51 +58,51 @@ class Testing:
         return combined
 
 
-class Testing2:
-    def __init__(self, test_loader, devicehandler):
-        logging.info('Loading testing phase...')
-        self.test_loader = test_loader
-        self.devicehandler = devicehandler
-
-    def test_model(self, epoch, num_epochs, model):
-        logging.info(f'Running epoch {epoch}/{num_epochs} of testing...')
-        output = []
-        filenames_list = []
-
-        with torch.no_grad():  # deactivate autograd engine to improve efficiency
-
-            # Set model in validation mode
-            model.eval()
-
-            # process mini-batches
-            for i, (inputs, filenames) in enumerate(self.test_loader):
-                targets = None
-
-                # prep
-                inputs, targets = self.devicehandler.move_data_to_device(model, inputs, targets)
-
-                # forward pass
-                out = model.forward(inputs)
-
-                # capture output for mini-batch
-                out = out.cpu().detach().numpy()  # extract from gpu if necessary
-                out = np.argmax(out, axis=1)
-                output.append(out)
-                filenames_list.append(filenames)
-
-        combined_filenames = np.concatenate(filenames_list, axis=0)
-        combined = np.concatenate(output, axis=0)
-
-        # create df of contents
-        df_output = pd.DataFrame(combined)
-        df_output = df_output.rename(columns={0: "label"})
-        print(df_output.head())
-
-        df_filenames = pd.DataFrame(combined_filenames)
-        df_filenames = df_filenames.rename(columns={0: "id"})
-        print(df_filenames.head())
-
-        df = pd.concat([df_output, df_filenames], axis=1)
-        print(df.head())
-
-        return df[['id','label']]
+# class Testing2:
+#     def __init__(self, test_loader, devicehandler):
+#         logging.info('Loading testing phase...')
+#         self.test_loader = test_loader
+#         self.devicehandler = devicehandler
+#
+#     def test_model(self, epoch, num_epochs, model):
+#         logging.info(f'Running epoch {epoch}/{num_epochs} of testing...')
+#         output = []
+#         filenames_list = []
+#
+#         with torch.no_grad():  # deactivate autograd engine to improve efficiency
+#
+#             # Set model in validation mode
+#             model.eval()
+#
+#             # process mini-batches
+#             for i, (inputs, filenames) in enumerate(self.test_loader):
+#                 targets = None
+#
+#                 # prep
+#                 inputs, targets = self.devicehandler.move_data_to_device(model, inputs, targets)
+#
+#                 # forward pass
+#                 out = model.forward(inputs)
+#
+#                 # capture output for mini-batch
+#                 out = out.cpu().detach().numpy()  # extract from gpu if necessary
+#                 out = np.argmax(out, axis=1)
+#                 output.append(out)
+#                 filenames_list.append(filenames)
+#
+#         combined_filenames = np.concatenate(filenames_list, axis=0)
+#         combined = np.concatenate(output, axis=0)
+#
+#         # create df of contents
+#         df_output = pd.DataFrame(combined)
+#         df_output = df_output.rename(columns={0: "label"})
+#         print(df_output.head())
+#
+#         df_filenames = pd.DataFrame(combined_filenames)
+#         df_filenames = df_filenames.rename(columns={0: "id"})
+#         print(df_filenames.head())
+#
+#         df = pd.concat([df_output, df_filenames], axis=1)
+#         print(df.head())
+#
+#         return df[['id', 'label']]
