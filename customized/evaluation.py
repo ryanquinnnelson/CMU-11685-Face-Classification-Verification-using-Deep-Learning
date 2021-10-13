@@ -47,8 +47,8 @@ class Evaluation:
 
     def evaluate_model(self, epoch, num_epochs, model):
         logging.info(f'Running epoch {epoch}/{num_epochs} of evaluation...')
-        output_list = []
-        targets_list = []
+        # output_list = []
+        # targets_list = []
         val_loss = 0
         num_hits = 0
 
@@ -81,9 +81,9 @@ class Evaluation:
                 out = out.cpu().detach().numpy()  # extract from gpu
                 num_hits += _calculate_num_hits(out, targets)
 
-                # debug save output
-                output_list.append(_convert_output(out))
-                targets_list.append(targets.cpu().detach().numpy())
+                # # debug save output
+                # output_list.append(_convert_output(out))
+                # targets_list.append(targets.cpu().detach().numpy())
 
                 # delete mini-batch from device
                 del inputs
@@ -93,14 +93,14 @@ class Evaluation:
             val_loss /= len(self.val_loader)  # average per mini-batch
             val_acc = num_hits / len(self.val_loader.dataset)
 
-            # debug write output
-            combined_output = np.concatenate(output_list, axis=0)
-            combined_targets = np.concatenate(targets_list, axis=0)
-            df_output = pd.DataFrame(combined_output)
-            df_targets = pd.DataFrame(combined_targets)
-            df = pd.concat([df_output, df_targets],axis=1)
-            fname = f'/home/ubuntu/evaluation.epoch{epoch}.{datetime.now().strftime("%Y%m%d.%H.%M.%S")}.csv'
-            logging.info(f'evaluation filename:{fname}')
-            df.to_csv(fname, header=False, index=False)
+            # # debug write output
+            # combined_output = np.concatenate(output_list, axis=0)
+            # combined_targets = np.concatenate(targets_list, axis=0)
+            # df_output = pd.DataFrame(combined_output)
+            # df_targets = pd.DataFrame(combined_targets)
+            # df = pd.concat([df_output, df_targets],axis=1)
+            # fname = f'/home/ubuntu/evaluation.epoch{epoch}.{datetime.now().strftime("%Y%m%d.%H.%M.%S")}.csv'
+            # logging.info(f'evaluation filename:{fname}')
+            # df.to_csv(fname, header=False, index=False)
 
             return val_loss, val_acc
