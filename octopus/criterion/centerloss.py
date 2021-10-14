@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import logging
 
 class CenterLoss(nn.Module):
     """
@@ -18,6 +18,7 @@ Reference: Wen et al. A Discriminative Feature Learning Approach for Deep Face R
         self.num_classes = num_classes
         self.feat_dim = feat_dim
         self.device = device
+        logging.info(f'device is {device}')
 
         self.centers = nn.Parameter(torch.randn(self.num_classes, self.feat_dim).to(self.device))
 

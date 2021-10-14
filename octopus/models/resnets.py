@@ -76,7 +76,7 @@ class ResidualBlock(nn.Module):
 
 # Inspiration from https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
 class Resnet18(nn.Module):
-    def __init__(self, in_features, num_classes,feat_dim=2):
+    def __init__(self, in_features, num_classes, feat_dim=2):
         super().__init__()
         self.feat_dim = feat_dim
 
@@ -113,15 +113,18 @@ class Resnet18(nn.Module):
             nn.Linear(512, num_classes))
         # nn.Softmax(dim=1))  # removed because it stopped model from improving
 
+        self.linear_feat_dim = nn.Linear(512, self.feat_dim)
+        self.activation = nn.ReLU(inplace=True)
+
     def forward(self, x, return_embedding=False):
         embedding = self.layers(x)
-        embedding_out = nn.ReLU(inplace=True)(nn.Linear(512, self.feat_dim)(embedding))  # ??
+        embedding_out = self.activation(self.linear_feat_dim(embedding))
         output = self.linear(embedding)
 
         if return_embedding:
             return embedding_out, output
         else:
-            return self.linear(embedding)
+            return output
 
 
 class Resnet34(nn.Module):
@@ -169,23 +172,19 @@ class Resnet34(nn.Module):
         # decoding layer
         self.linear = nn.Sequential(
             nn.Linear(512, num_classes))
-        # nn.Softmax(dim=1))  # removed because it stopped model from improving and I don't know why. Could be dim=1.
 
-    #     # apply initialization if defined
-    #     self.layers.apply(self._initialize_weights)
-    #
-    # def _initialize_weights(self, seq):
-    #     logging.info(f'Initializing weights using {self.init_type}...')
+        self.linear_feat_dim = nn.Linear(512, self.feat_dim)
+        self.activation = nn.ReLU(inplace=True)
 
     def forward(self, x, return_embedding=False):
         embedding = self.layers(x)
-        embedding_out = nn.ReLU(inplace=True)(nn.Linear(512, self.feat_dim)(embedding))  # ??
+        embedding_out = self.activation(self.linear_feat_dim(embedding))
         output = self.linear(embedding)
 
         if return_embedding:
             return embedding_out, output
         else:
-            return self.linear(embedding)
+            return output
 
 
 class BottleneckResidualBlock(nn.Module):
