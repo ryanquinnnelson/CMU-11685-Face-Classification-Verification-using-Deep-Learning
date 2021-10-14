@@ -99,3 +99,12 @@ class StatsHandler:
         self.stats['train_loss'].append(train_loss)
         self.stats['val_loss'].append(val_loss)
         self.stats[self.val_metric_name].append(val_metric)
+
+    def report_previous_stats(self, wandbconnector):
+        logging.info('Reporting previous stats...')
+        n_stats = len(self.stats[list(self.stats.keys())[0]])
+        for i in range(0, n_stats):
+            epoch_stats_dict = dict()
+            for key in self.stats.keys():
+                epoch_stats_dict[key] = self.stats[key][i]
+            wandbconnector.log_stats(epoch_stats_dict)

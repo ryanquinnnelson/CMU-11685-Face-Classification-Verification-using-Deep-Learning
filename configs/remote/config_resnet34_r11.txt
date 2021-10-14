@@ -1,5 +1,5 @@
 [DEFAULT]
-run_name = Resnet18-Run-18
+run_name = Resnet34-Run-11
 
 
 
@@ -26,7 +26,7 @@ wandb_dir = /home/ubuntu/
 entity = ryanquinnnelson
 project = CMU-11685-HW2P2A-octopus
 notes = CNN Face Classification
-tags = CNN,octopus,Resnet18
+tags = CNN,octopus,Resnet34
 
 
 
@@ -60,12 +60,12 @@ output_dir = /home/ubuntu/output
 num_workers=8
 pin_memory=True
 batch_size=256
-transforms_list=RandomHorizontalFlip,ToTensor
+transforms_list=RandomHorizontalFlip,ColorJitter,RandomResizedCrop,ToTensor
 
 
 
 [model]
-model_type=Resnet18
+model_type=Resnet34
 in_features = 3
 num_classes = 4000
 
@@ -73,9 +73,9 @@ num_classes = 4000
 
 [checkpoint]
 checkpoint_dir = /data/checkpoints
-delete_existing_checkpoints = False
-load_from_checkpoint=True
-checkpoint_file =  /data/checkpoints/Resnet18-Run-18.checkpoint.20.pt
+delete_existing_checkpoints = True
+load_from_checkpoint=False
+checkpoint_file =  None
 
 
 
@@ -83,7 +83,7 @@ checkpoint_file =  /data/checkpoints/Resnet18-Run-18.checkpoint.20.pt
 num_epochs = 50
 criterion_type=CrossEntropyLoss
 optimizer_type=SGD
-optimizer_kwargs=lr=0.1,weight_decay=0.0001,momentum=0.9
+optimizer_kwargs=lr=0.005,weight_decay=0.0001,momentum=0.9
 scheduler_type=ReduceLROnPlateau
-scheduler_kwargs=factor=0.1,patience=2,mode=max,verbose=True
+scheduler_kwargs=factor=0.1,patience=3,mode=max,verbose=True
 scheduler_plateau_metric=val_acc
