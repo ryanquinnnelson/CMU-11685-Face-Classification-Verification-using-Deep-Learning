@@ -21,6 +21,7 @@ class CriterionHandler:
             criterion = nn.CrossEntropyLoss()
 
         elif self.criterion_type == 'CenterLoss':
+            print(kwargs)
             criterion = CenterLoss(**kwargs)
 
         logging.info(f'Criterion is set:{criterion}.')

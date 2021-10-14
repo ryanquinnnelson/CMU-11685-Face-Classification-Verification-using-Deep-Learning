@@ -31,3 +31,25 @@ class ResnetHandler:
 
         logging.info(f'Model initialized:\n{model}')
         return model
+
+
+class ResnetHandlerCenterLoss:
+    def __init__(self, model_type, in_features, num_classes, feat_dim):
+        logging.info('Initializing model handling...')
+        self.model_type = model_type
+        self.in_features = in_features
+        self.num_classes = num_classes
+        self.feat_dim = feat_dim
+
+    def get_model(self):
+        logging.info('Initializing model...')
+        model = None
+
+        if self.model_type == 'Resnet18':
+            model = resnets.Resnet18(self.in_features, self.num_classes, self.feat_dim)
+
+        elif self.model_type == 'Resnet34':
+            model = resnets.Resnet34(self.in_features, self.num_classes, self.feat_dim)
+
+        logging.info(f'Model initialized:\n{model}')
+        return model

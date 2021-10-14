@@ -26,11 +26,16 @@ Reference: Wen et al. A Discriminative Feature Learning Approach for Deep Face R
         Args:
             x: feature matrix with shape (batch_size, feat_dim).
             labels: ground truth labels with shape (batch_size).
+
+        UserWarning: This overload of addmm_ is deprecated:
+        addmm_(Number beta, Number alpha, Tensor mat1, Tensor mat2)
+        Consider using one of the following signatures instead:
+        addmm_(Tensor mat1, Tensor mat2, *, Number beta, Number alpha)
         """
         batch_size = x.size(0)
         distmat = torch.pow(x, 2).sum(dim=1, keepdim=True).expand(batch_size, self.num_classes) + \
                   torch.pow(self.centers, 2).sum(dim=1, keepdim=True).expand(self.num_classes, batch_size).t()
-        distmat.addmm_(1, -2, x, self.centers.t())
+        distmat.addmm_(1, -2, x, self.centers.t())  # see UserWarning above
 
         classes = torch.arange(self.num_classes).long().to(self.device)
         labels = labels.unsqueeze(1).expand(batch_size, self.num_classes)

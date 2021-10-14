@@ -25,7 +25,7 @@ from octopus.fixedhandlers.dataloaderhandler import DataLoaderHandler
 from octopus.fixedhandlers.outputhandler import OutputHandler
 from octopus.datasethandlers.imagedatasethandler import ImageDatasetHandler
 from octopus.modelhandlers.cnnhandler import CnnHandler
-from octopus.modelhandlers.resnethandler import ResnetHandler
+from octopus.modelhandlers.resnethandler import ResnetHandler, ResnetHandlerCenterLoss
 from octopus.phases.training import Training, TrainingCenterLoss
 from octopus.phases.testing import Testing
 
@@ -118,13 +118,13 @@ class Octopus:
         if self.config['hyperparameters']['criterion_type'] == 'CenterLoss':
 
             # num_classes, feat_dim, device
-            num_classes = self.config['model'].getint('num_classes')
-            feat_dim = self.config['model'].getint('feat_dim')
-            device = self.devicehandler.device
+            centerloss_args = {
+                'num_classes': self.config['model'].getint('num_classes'),
+                'feat_dim': self.config['model'].getint('feat_dim'),
+                'device': self.devicehandler.device}
 
             # initialize model components
-            centerloss_criterion_cls = self.criterionhandler.get_loss_function(num_classes=num_classes,
-                                                                               feat_dim=feat_dim, device=device)
+            centerloss_criterion_cls = self.criterionhandler.get_loss_function(**centerloss_args)
             label_criterion_func = self.criterionhandler2.get_loss_function()
 
             centerloss_optimizer = self.optimizerhandler.get_optimizer(centerloss_criterion_cls)
@@ -333,9 +333,16 @@ def initialize_variable_handlers(config):
                                   config['model']['pool_class'],
                                   _to_int_dict(config['model']['pool_kwargs']))
     elif 'Resnet' in config['model']['model_type']:
-        modelhandler = ResnetHandler(config['model']['model_type'],
-                                     config['model'].getint('in_features'),
-                                     config['model'].getint('num_classes'))
+
+        if config['hyperparameters']['criterion_type'] == 'CenterLoss':
+            modelhandler = ResnetHandlerCenterLoss(config['model']['model_type'],
+                                         config['model'].getint('in_features'),
+                                         config['model'].getint('num_classes'),
+                                         config['model'].getint('feat_dim'))
+        else:
+            modelhandler = ResnetHandler(config['model']['model_type'],
+                                         config['model'].getint('in_features'),
+                                         config['model'].getint('num_classes'))
 
     else:
         modelhandler = None
