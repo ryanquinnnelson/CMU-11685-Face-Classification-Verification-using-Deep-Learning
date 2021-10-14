@@ -26,12 +26,12 @@ from octopus.fixedhandlers.outputhandler import OutputHandler
 from octopus.datasethandlers.imagedatasethandler import ImageDatasetHandler
 from octopus.modelhandlers.cnnhandler import CnnHandler
 from octopus.modelhandlers.resnethandler import ResnetHandler
-from octopus.phases.training import Training
+from octopus.phases.training import Training, TrainingCenterLoss
 from octopus.phases.testing import Testing
 
 # customized to this data
 from customized.formatters import OutputFormatter
-from customized.evaluation import Evaluation
+from customized.evaluation import Evaluation, EvaluationCenterLoss
 
 
 class Octopus:
@@ -53,6 +53,16 @@ class Octopus:
         self.checkpointhandler, self.criterionhandler, self.dataloaderhandler, self.devicehandler, \
         self.optimizerhandler, self.outputhandler, self.schedulerhandler, self.statshandler, \
         self.phasehandler = initialize_fixed_handlers(config, self.wandbconnector)
+
+        if self.config['hyperparameters']['criterion_type'] == 'CenterLoss':
+            logging.info('Initializing second set of components to complement CenterLoss components...')
+            self.criterionhandler2 = CriterionHandler('CrossEntropyLoss')
+
+            self.optimizerhandler2 = OptimizerHandler('SGD',
+                                                      _to_float_dict(config['hyperparameters']['optimizer2_kwargs']))
+        else:
+            self.criterionhandler2 = None
+            self.optimizerhandler2 = None
 
         # variable handlers
         self.inputhandler, self.modelhandler = initialize_variable_handlers(config)
@@ -105,21 +115,56 @@ class Octopus:
         self.devicehandler.move_model_to_device(model)  # move model before initializing optimizer - see Note 1
         self.wandbconnector.watch(model)
 
-        # initialize model components
-        loss_func = self.criterionhandler.get_loss_function()
-        optimizer = self.optimizerhandler.get_optimizer(model)
-        scheduler = self.schedulerhandler.get_scheduler(optimizer)
+        if self.config['hyperparameters']['criterion_type'] == 'CenterLoss':
 
-        # load data
-        train_loader, val_loader, test_loader = self.dataloaderhandler.load(self.inputhandler)
+            # num_classes, feat_dim, device
+            num_classes = self.config['model'].getint('num_classes')
+            feat_dim = self.config['model'].getint('feat_dim')
+            device = self.devicehandler.device
 
-        # load phases
-        training = Training(train_loader, loss_func, self.devicehandler)
-        evaluation = Evaluation(val_loader, loss_func, self.devicehandler)
-        testing = Testing(test_loader, self.devicehandler)
+            # initialize model components
+            centerloss_criterion_cls = self.criterionhandler.get_loss_function(num_classes=num_classes,
+                                                                               feat_dim=feat_dim, device=device)
+            label_criterion_func = self.criterionhandler2.get_loss_function()
 
-        # run epochs
-        self.phasehandler.process_epochs(model, optimizer, scheduler, training, evaluation, testing)
+            centerloss_optimizer = self.optimizerhandler.get_optimizer(centerloss_criterion_cls)
+            label_optimizer = self.optimizerhandler2.get_optimizer(model)
+
+            centerloss_scheduler = self.schedulerhandler.get_scheduler(centerloss_optimizer)
+            label_scheduler = self.schedulerhandler.get_scheduler(label_optimizer)
+
+            # load data
+            train_loader, val_loader, test_loader = self.dataloaderhandler.load(self.inputhandler)
+
+            # load phases
+            centerloss_weight = self.config['hyperparameters'].getfloat('centerloss_weight')
+            training = TrainingCenterLoss(train_loader, label_criterion_func, centerloss_criterion_cls,
+                                          centerloss_weight, self.devicehandler)
+            evaluation = EvaluationCenterLoss(val_loader, label_criterion_func, centerloss_criterion_cls,
+                                              centerloss_weight, self.devicehandler)
+            testing = Testing(test_loader, self.devicehandler)
+
+            # run epochs
+            self.phasehandler.process_epochs_centerloss(model, label_optimizer, centerloss_optimizer, label_scheduler,
+                                                        centerloss_scheduler, training, evaluation,
+                                                        testing)
+        else:
+
+            # initialize model components
+            loss_func = self.criterionhandler.get_loss_function()
+            optimizer = self.optimizerhandler.get_optimizer(model)
+            scheduler = self.schedulerhandler.get_scheduler(optimizer)
+
+            # load data
+            train_loader, val_loader, test_loader = self.dataloaderhandler.load(self.inputhandler)
+
+            # load phases
+            training = Training(train_loader, loss_func, self.devicehandler)
+            evaluation = Evaluation(val_loader, loss_func, self.devicehandler)
+            testing = Testing(test_loader, self.devicehandler)
+
+            # run epochs
+            self.phasehandler.process_epochs(model, optimizer, scheduler, training, evaluation, testing)
 
         logging.info('octopus has finished running the pipeline.')
 

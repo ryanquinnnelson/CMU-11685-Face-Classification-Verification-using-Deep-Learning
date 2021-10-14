@@ -1,11 +1,11 @@
 [DEFAULT]
-run_name = Resnet34-Run-14
+run_name = Resnet34-Run-032
 
 
 
 
 [debug]
-debug_path = /home/ubuntu
+debug_path = /home/ubuntu/
 
 
 
@@ -60,7 +60,7 @@ output_dir = /home/ubuntu/output
 num_workers=8
 pin_memory=True
 batch_size=256
-transforms_list=RandomHorizontalFlip,ColorJitter,RandomResizedCrop,ToTensor
+transforms_list=RandomHorizontalFlip,ToTensor
 
 
 
@@ -73,17 +73,17 @@ num_classes = 4000
 
 [checkpoint]
 checkpoint_dir = /data/checkpoints
-delete_existing_checkpoints = False
+delete_existing_checkpoints = True
 load_from_checkpoint=False
 checkpoint_file =  None
 
 
 
 [hyperparameters]
-num_epochs = 50
+num_epochs = 40
 criterion_type=CrossEntropyLoss
 optimizer_type=SGD
-optimizer_kwargs=lr=0.005,weight_decay=0.0001,momentum=0.9
+optimizer_kwargs=lr=0.001,weight_decay=0.0000005,momentum=0.9
 scheduler_type=ReduceLROnPlateau
 scheduler_kwargs=factor=0.1,patience=3,mode=max,verbose=True
 scheduler_plateau_metric=val_acc

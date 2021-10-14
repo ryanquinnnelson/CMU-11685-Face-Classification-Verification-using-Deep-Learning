@@ -1,5 +1,5 @@
 [DEFAULT]
-run_name = Resnet34-Run-14
+run_name = Resnet34-Run-19
 
 
 
@@ -34,7 +34,7 @@ tags = CNN,octopus,Resnet34
 [stats]
 comparison_metric=val_acc
 comparison_best_is_max=True
-comparison_patience=10
+comparison_patience=40
 val_metric_name=val_acc
 
 

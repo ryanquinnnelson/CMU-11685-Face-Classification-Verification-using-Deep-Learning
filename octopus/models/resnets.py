@@ -122,9 +122,10 @@ class Resnet18(nn.Module):
 
 
 class Resnet34(nn.Module):
-    def __init__(self, in_features, num_classes, init_type=None):
+    def __init__(self, in_features, num_classes, init_type=None, feat_dim=2):
         super().__init__()
         self.init_type = init_type
+        self.feat_dim = feat_dim
 
         self.layers = nn.Sequential(
             # conv1
@@ -175,9 +176,11 @@ class Resnet34(nn.Module):
 
     def forward(self, x, return_embedding=False):
         embedding = self.layers(x)
+        embedding_out = nn.ReLU(inplace=True)(nn.Linear(512, self.feat_dim)) #??
+        output = self.linear(embedding)
 
         if return_embedding:
-            return embedding
+            return embedding_out, output
         else:
             return self.linear(embedding)
 

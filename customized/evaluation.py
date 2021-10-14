@@ -104,3 +104,52 @@ class Evaluation:
             # df.to_csv(fname, header=False, index=False)
 
             return val_loss, val_acc
+
+
+class EvaluationCenterLoss:
+
+    def __init__(self, val_loader, label_criterion_func, centerloss_func, centerloss_weight, devicehandler):
+        logging.info('Loading evaluation phase...')
+        self.val_loader = val_loader
+        self.label_criterion_func = label_criterion_func
+        self.centerloss_func = centerloss_func
+        self.centerloss_weight = centerloss_weight
+        self.devicehandler = devicehandler
+
+    def evaluate_model(self, epoch, num_epochs, model):
+        logging.info(f'Running epoch {epoch}/{num_epochs} of evaluation...')
+        val_loss = 0
+        num_hits = 0
+
+        with torch.no_grad():  # deactivate autograd engine to improve efficiency
+
+            # Set model in validation mode
+            model.eval()
+
+            # process mini-batches
+            for i, (inputs, targets) in enumerate(self.val_loader):
+                # prep
+                inputs, targets = self.devicehandler.move_data_to_device(model, inputs, targets)
+
+                # forward pass
+                feature, outputs = model.forward(inputs, return_embedding=True)
+
+                # calculate validation loss
+                l_loss = self.label_criterion_func(outputs, targets)
+                c_loss = self.centerloss_func(feature, targets)
+                loss = l_loss + c_loss * self.centerloss_weight
+                val_loss += loss.item()
+
+                # calculate number of accurate predictions for this batch
+                out = out.cpu().detach().numpy()  # extract from gpu
+                num_hits += _calculate_num_hits(out, targets)
+
+                # delete mini-batch from device
+                del inputs
+                del targets
+
+            # calculate evaluation metrics
+            val_loss /= len(self.val_loader)  # average per mini-batch
+            val_acc = num_hits / len(self.val_loader.dataset)
+
+            return val_loss, val_acc
