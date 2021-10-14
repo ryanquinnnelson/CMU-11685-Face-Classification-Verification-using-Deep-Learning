@@ -141,8 +141,8 @@ class EvaluationCenterLoss:
                 val_loss += loss.item()
 
                 # calculate number of accurate predictions for this batch
-                out = out.cpu().detach().numpy()  # extract from gpu
-                num_hits += _calculate_num_hits(out, targets)
+                outputs = outputs.cpu().detach().numpy()  # extract from gpu
+                num_hits += _calculate_num_hits(outputs, targets)
 
                 # delete mini-batch from device
                 del inputs
