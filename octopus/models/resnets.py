@@ -128,9 +128,8 @@ class Resnet18(nn.Module):
 
 
 class Resnet34(nn.Module):
-    def __init__(self, in_features, num_classes, init_type=None, feat_dim=2):
+    def __init__(self, in_features, num_classes, feat_dim=2):
         super().__init__()
-        self.init_type = init_type
         self.feat_dim = feat_dim
 
         self.layers = nn.Sequential(
