@@ -1,5 +1,5 @@
 [DEFAULT]
-run_name = Resnet34-Run-11
+run_name = Resnet34-Run-12
 
 
 
@@ -34,7 +34,7 @@ tags = CNN,octopus,Resnet34
 [stats]
 comparison_metric=val_acc
 comparison_best_is_max=True
-comparison_patience=50
+comparison_patience=10
 val_metric_name=val_acc
 
 
@@ -73,7 +73,7 @@ num_classes = 4000
 
 [checkpoint]
 checkpoint_dir = /data/checkpoints
-delete_existing_checkpoints = True
+delete_existing_checkpoints = False
 load_from_checkpoint=False
 checkpoint_file =  None
 
@@ -83,7 +83,7 @@ checkpoint_file =  None
 num_epochs = 50
 criterion_type=CrossEntropyLoss
 optimizer_type=SGD
-optimizer_kwargs=lr=0.005,weight_decay=0.0001,momentum=0.9
+optimizer_kwargs=lr=0.01,weight_decay=0.0001,momentum=0.9
 scheduler_type=ReduceLROnPlateau
 scheduler_kwargs=factor=0.1,patience=3,mode=max,verbose=True
 scheduler_plateau_metric=val_acc

@@ -102,7 +102,7 @@ class StatsHandler:
 
     def report_previous_stats(self, wandbconnector):
         logging.info('Reporting previous stats...')
-        n_stats = len(self.stats[list(self.stats.keys())[0]])
+        n_stats = len(self.stats[list(self.stats.keys())[0]])  # calculate how many epochs of stats were collected
         for i in range(0, n_stats):
             epoch_stats_dict = dict()
             for key in self.stats.keys():
