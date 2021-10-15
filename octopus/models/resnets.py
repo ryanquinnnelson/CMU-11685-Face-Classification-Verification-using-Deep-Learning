@@ -75,6 +75,7 @@ class ResidualBlock(nn.Module):
 
 
 # uses identity rather than skip shortcut
+# this improves learning rate quite a bit for some reason
 class ResidualBlock2(nn.Module):
 
     def __init__(self, in_channels, out_channels):
