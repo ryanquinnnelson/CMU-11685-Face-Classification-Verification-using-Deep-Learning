@@ -74,6 +74,51 @@ class ResidualBlock(nn.Module):
         return out
 
 
+# uses identity rather than skip shortcut
+class ResidualBlock2(nn.Module):
+
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+
+        self.stride = 2 if in_channels != out_channels else 1
+
+        self.blocks = nn.Sequential(
+
+            # first conv layer
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=self.stride, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+
+            # second conv layer
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels))
+
+        # shortcut
+        if in_channels != out_channels:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=self.stride, bias=False),
+                nn.BatchNorm2d(out_channels)
+            )
+        else:
+            self.shortcut = nn.Identity()
+        self.activate = nn.ReLU(inplace=True)
+
+    def forward(self, x):
+        # blocks
+        out = self.blocks(x)
+
+        # shortcut
+        shortcut = self.shortcut(x)
+
+        # combine
+        out = self.activate(out + shortcut)
+
+        return out
+
+
 # Inspiration from https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
 class Resnet18(nn.Module):
     def __init__(self, in_features, num_classes, feat_dim=2):
@@ -163,6 +208,65 @@ class Resnet34(nn.Module):
             ResidualBlock(256, 512),
             ResidualBlock(512, 512),
             ResidualBlock(512, 512),
+
+            # summary
+            nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(),
+        )
+        # decoding layer
+        self.linear = nn.Sequential(
+            nn.Linear(512, num_classes))
+
+        self.linear_feat_dim = nn.Linear(512, self.feat_dim)
+        self.activation = nn.ReLU(inplace=True)
+
+    def forward(self, x, return_embedding=False):
+        embedding = self.layers(x)
+        embedding_out = self.activation(self.linear_feat_dim(embedding))
+        output = self.linear(embedding)
+
+        if return_embedding:
+            return embedding_out, output
+        else:
+            return output
+
+
+class Resnet34_v2(nn.Module):
+    def __init__(self, in_features, num_classes, feat_dim=2):
+        super().__init__()
+        self.feat_dim = feat_dim
+
+        self.layers = nn.Sequential(
+            # conv1
+            nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+
+            # conv2..x
+            ResidualBlock2(64, 64),
+            ResidualBlock2(64, 64),
+            ResidualBlock2(64, 64),
+
+            # conv3..x
+            ResidualBlock2(64, 128),
+            ResidualBlock2(128, 128),
+            ResidualBlock2(128, 128),
+            ResidualBlock2(128, 128),
+
+            # conv4..x
+            ResidualBlock2(128, 256),
+            ResidualBlock2(256, 256),
+            ResidualBlock2(256, 256),
+            ResidualBlock2(256, 256),
+            ResidualBlock2(256, 256),
+            ResidualBlock2(256, 256),
+
+            # conv5..x
+            ResidualBlock2(256, 512),
+            ResidualBlock2(512, 512),
+            ResidualBlock2(512, 512),
 
             # summary
             nn.AdaptiveAvgPool2d((1, 1)),
