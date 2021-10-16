@@ -160,11 +160,10 @@ class Resnet18(nn.Module):
         # nn.Softmax(dim=1))  # removed because it stopped model from improving
 
         self.linear_feat_dim = nn.Linear(512, self.feat_dim)
-        self.activation = nn.ReLU(inplace=True)
 
     def forward(self, x, return_embedding=False):
         embedding = self.layers(x)
-        embedding_out = self.activation(self.linear_feat_dim(embedding))
+        embedding_out = self.linear_feat_dim(embedding)
         output = self.linear(embedding)
 
         if return_embedding:
@@ -278,11 +277,10 @@ class Resnet34_v2(nn.Module):
             nn.Linear(512, num_classes))
 
         self.linear_feat_dim = nn.Linear(512, self.feat_dim)
-        self.activation = nn.ReLU(inplace=True)
 
     def forward(self, x, return_embedding=False):
         embedding = self.layers(x)
-        embedding_out = self.activation(self.linear_feat_dim(embedding))
+        embedding_out = self.linear_feat_dim(embedding)
         output = self.linear(embedding)
 
         if return_embedding:
