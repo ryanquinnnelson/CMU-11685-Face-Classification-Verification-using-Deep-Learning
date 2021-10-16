@@ -3,6 +3,7 @@ All things Resnet.
 """
 
 __author__ = 'ryanquinnnelson'
+import logging
 
 import torch.nn as nn
 
@@ -135,11 +136,11 @@ class ResidualBlock3(nn.Module):
 
         # first conv layer
         self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=self.stride, padding=1, bias=False)
-        nn.init.kaiming_normal(self.conv1.weight)
+        nn.init.kaiming_normal_(self.conv1.weight)
 
         # second conv layer
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
-        nn.init.kaiming_normal(self.conv2.weight)
+        nn.init.kaiming_normal_(self.conv2.weight)
 
         self.blocks = nn.Sequential(
 
@@ -354,7 +355,7 @@ class Resnet34_v3(nn.Module):
 
         # conv1
         self.conv1 = nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=3, stride=1, padding=3, bias=False)
-        nn.init.kaiming_normal(self.conv1.weight)
+        nn.init.kaiming_normal_(self.conv1.weight)
 
         self.layers = nn.Sequential(
             self.conv1,
