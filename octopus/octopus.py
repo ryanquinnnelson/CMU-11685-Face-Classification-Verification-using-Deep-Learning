@@ -336,9 +336,9 @@ def initialize_variable_handlers(config):
 
         if config['hyperparameters']['criterion_type'] == 'CenterLoss':
             modelhandler = ResnetHandlerCenterLoss(config['model']['model_type'],
-                                         config['model'].getint('in_features'),
-                                         config['model'].getint('num_classes'),
-                                         config['model'].getint('feat_dim'))
+                                                   config['model'].getint('in_features'),
+                                                   config['model'].getint('num_classes'),
+                                                   config['model'].getint('feat_dim'))
         else:
             modelhandler = ResnetHandler(config['model']['model_type'],
                                          config['model'].getint('in_features'),

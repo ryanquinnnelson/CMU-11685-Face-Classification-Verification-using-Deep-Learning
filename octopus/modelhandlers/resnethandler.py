@@ -18,7 +18,7 @@ class ResnetHandler:
             model = resnets.Resnet18(self.in_features, self.num_classes)
 
         elif self.model_type == 'Resnet34':
-            model = resnets.Resnet34_v2(self.in_features, self.num_classes)
+            model = resnets.Resnet34_v3(self.in_features, self.num_classes)
 
         elif self.model_type == 'Resnet50':
             model = resnets.Resnet50(self.in_features, self.num_classes)

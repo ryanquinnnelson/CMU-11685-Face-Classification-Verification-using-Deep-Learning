@@ -42,21 +42,17 @@ def _compose_transforms(transforms_list):
 
     for each in transforms_list:
         if each == 'RandomHorizontalFlip':
-            t_list.append(transforms.RandomHorizontalFlip())
+            t_list.append(transforms.RandomHorizontalFlip(0.1))
         elif each == 'ToTensor':
             t_list.append(transforms.ToTensor())
         elif each == 'RandomRotation':
-            t_list.append(transforms.RandomRotation(degrees=30))
-        elif each == 'RandomVerticalFlip':
-            t_list.append(transforms.RandomVerticalFlip())
+            t_list.append(transforms.RandomRotation(degrees=15))
         elif each == 'Normalize':
-            t_list.append(transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)))  # tuple size == channels
-        elif each == 'RandomAffine':
-            t_list.append(transforms.RandomAffine(degrees=10, scale=(0.9, 1.1), shear=(-30, 30)))
+            t_list.append(
+                transforms.Normalize(mean=(0.229, 0.224, 0.225),
+                                     std=(0.485, 0.456, 0.406)))  # tuple size == channels, imagenet values
         elif each == 'ColorJitter':
             t_list.append(transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
-        elif each == 'RandomResizedCrop':
-            t_list.append(transforms.RandomResizedCrop(size=64, scale=(0.8, 1.0)))
 
     composition = transforms.Compose(t_list)
 
@@ -77,6 +73,8 @@ class ImageDatasetHandler:
         self.val_dir = val_dir
         self.test_dir = test_dir
         self.transforms_list = transforms_list
+        self.should_normalize_val = True if 'Normalize' in transforms_list else False
+        self.should_normalize_test = True if 'Normalize' in transforms_list else False
 
     def get_train_dataset(self):
         transform = _compose_transforms(self.transforms_list)
@@ -94,11 +92,25 @@ class ImageDatasetHandler:
         return imf
 
     def get_val_dataset(self):
-        imf = ImageFolder(self.val_dir, transform=transforms.Compose([transforms.ToTensor()]))
+
+        if self.should_normalize_val:
+            logging.info('Normalizing validation data to match normalization of training data...')
+            t = _compose_transforms(['ToTensor', 'Normalize'])
+        else:
+            t = _compose_transforms(['ToTensor'])
+
+        imf = ImageFolder(self.val_dir, transform=t)
         logging.info(f'Loaded {len(imf.imgs)} images as validation data.')
         return imf
 
     def get_test_dataset(self):
-        ds = TestDataset(self.test_dir)
+
+        if self.should_normalize_test:
+            logging.info('Normalizing test data to match normalization of training data...')
+            t = _compose_transforms(['ToTensor', 'Normalize'])
+        else:
+            t = _compose_transforms(['ToTensor'])
+
+        ds = TestDataset(self.test_dir, transform=t)
         logging.info(f'Loaded {ds.length} images as test data.')
         return ds
