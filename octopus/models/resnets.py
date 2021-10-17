@@ -191,10 +191,6 @@ class ResidualBlock4(nn.Module):
 
         self.stride = 2 if in_channels != out_channels else 1
 
-        nn.init.kaiming_normal_(self.conv1.weight)
-
-        nn.init.kaiming_normal_(self.conv2.weight)
-
         self.blocks = nn.Sequential(
             # first conv layer
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=self.stride, padding=1, bias=False),
@@ -479,7 +475,7 @@ class Resnet34_v4(nn.Module):
 
         self.layers = nn.Sequential(
             # conv1
-            nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=3, stride=1, padding=3, bias=False),
+            nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
 
