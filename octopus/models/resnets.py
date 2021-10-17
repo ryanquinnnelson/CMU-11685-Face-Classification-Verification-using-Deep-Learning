@@ -486,28 +486,28 @@ class Resnet34_v4(nn.Module):
             # nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
 
             # conv2..x
-            ResidualBlock3(64, 64),
-            ResidualBlock3(64, 64),
-            ResidualBlock3(64, 64),
+            ResidualBlock4(64, 64),
+            ResidualBlock4(64, 64),
+            ResidualBlock4(64, 64),
 
             # conv3..x
-            ResidualBlock3(64, 128),
-            ResidualBlock3(128, 128),
-            ResidualBlock3(128, 128),
-            ResidualBlock3(128, 128),
+            ResidualBlock4(64, 128),
+            ResidualBlock4(128, 128),
+            ResidualBlock4(128, 128),
+            ResidualBlock4(128, 128),
 
             # conv4..x
-            ResidualBlock3(128, 256),
-            ResidualBlock3(256, 256),
-            ResidualBlock3(256, 256),
-            ResidualBlock3(256, 256),
-            ResidualBlock3(256, 256),
-            ResidualBlock3(256, 256),
+            ResidualBlock4(128, 256),
+            ResidualBlock4(256, 256),
+            ResidualBlock4(256, 256),
+            ResidualBlock4(256, 256),
+            ResidualBlock4(256, 256),
+            ResidualBlock4(256, 256),
 
             # conv5..x
-            ResidualBlock3(256, 512),
-            ResidualBlock3(512, 512),
-            ResidualBlock3(512, 512),
+            ResidualBlock4(256, 512),
+            ResidualBlock4(512, 512),
+            ResidualBlock4(512, 512),
 
             # summary
             nn.AdaptiveAvgPool2d((1, 1)),
