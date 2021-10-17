@@ -3,9 +3,15 @@ All things Resnet.
 """
 
 __author__ = 'ryanquinnnelson'
+
 import logging
 
 import torch.nn as nn
+
+
+def _init_weights(mod):
+    if isinstance(mod, nn.Conv2d):
+        nn.init.kaiming_normal_(mod.weight)
 
 
 # Identical to class presented in Recitation 6
@@ -160,6 +166,58 @@ class ResidualBlock3(nn.Module):
         else:
             self.shortcut = nn.Identity()
         self.activate = nn.ReLU(inplace=True)
+
+    def forward(self, x):
+        # blocks
+        out = self.blocks(x)
+
+        # shortcut
+        shortcut = self.shortcut(x)
+
+        # combine
+        out = self.activate(out + shortcut)
+
+        return out
+
+
+# includes kaiming initialization in a way that doesn't introduce twice the number of layers
+class ResidualBlock4(nn.Module):
+
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+
+        self.stride = 2 if in_channels != out_channels else 1
+
+        nn.init.kaiming_normal_(self.conv1.weight)
+
+        nn.init.kaiming_normal_(self.conv2.weight)
+
+        self.blocks = nn.Sequential(
+            # first conv layer
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=self.stride, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+
+            # second conv layer
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels))
+
+        # shortcut
+        if in_channels != out_channels:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=self.stride, bias=False),
+                nn.BatchNorm2d(out_channels)
+            )
+        else:
+            self.shortcut = nn.Identity()
+        self.activate = nn.ReLU(inplace=True)
+
+        # initialize weights
+        self.blocks.apply(_init_weights)
+        self.shortcut.apply(_init_weights)
 
     def forward(self, x):
         # blocks
@@ -354,7 +412,7 @@ class Resnet34_v3(nn.Module):
         self.feat_dim = feat_dim
 
         # conv1
-        self.conv1 = nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=3, stride=1, padding=3, bias=False)
         nn.init.kaiming_normal_(self.conv1.weight)
 
         self.layers = nn.Sequential(
@@ -398,6 +456,72 @@ class Resnet34_v3(nn.Module):
 
         self.linear_feat_dim = nn.Linear(512, self.feat_dim)
         self.activation = nn.ReLU(inplace=True)
+
+    def forward(self, x, return_embedding=False):
+        embedding = self.layers(x)
+        embedding_out = self.activation(self.linear_feat_dim(embedding))
+        output = self.linear(embedding)
+
+        if return_embedding:
+            return embedding_out, output
+        else:
+            return output
+
+
+# change kernel size of first layer to 3 to work with smaller images in our dataset
+# kaiming initialization for initial conv layer
+# remove max pool layer
+# initializes weights in a way that doesn't double the number of layers
+class Resnet34_v4(nn.Module):
+    def __init__(self, in_features, num_classes, feat_dim=512):
+        super().__init__()
+        self.feat_dim = feat_dim
+
+        self.layers = nn.Sequential(
+            # conv1
+            nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=3, stride=1, padding=3, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+
+            # nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+
+            # conv2..x
+            ResidualBlock3(64, 64),
+            ResidualBlock3(64, 64),
+            ResidualBlock3(64, 64),
+
+            # conv3..x
+            ResidualBlock3(64, 128),
+            ResidualBlock3(128, 128),
+            ResidualBlock3(128, 128),
+            ResidualBlock3(128, 128),
+
+            # conv4..x
+            ResidualBlock3(128, 256),
+            ResidualBlock3(256, 256),
+            ResidualBlock3(256, 256),
+            ResidualBlock3(256, 256),
+            ResidualBlock3(256, 256),
+            ResidualBlock3(256, 256),
+
+            # conv5..x
+            ResidualBlock3(256, 512),
+            ResidualBlock3(512, 512),
+            ResidualBlock3(512, 512),
+
+            # summary
+            nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(),
+        )
+        # decoding layer
+        self.linear = nn.Sequential(
+            nn.Linear(512, num_classes))
+
+        self.linear_feat_dim = nn.Linear(512, self.feat_dim)
+        self.activation = nn.ReLU(inplace=True)
+
+        # initialize weights
+        self.layers.apply(_init_weights)
 
     def forward(self, x, return_embedding=False):
         embedding = self.layers(x)
