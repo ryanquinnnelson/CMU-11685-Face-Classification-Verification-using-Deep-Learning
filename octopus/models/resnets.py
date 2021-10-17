@@ -354,7 +354,7 @@ class Resnet34_v3(nn.Module):
         self.feat_dim = feat_dim
 
         # conv1
-        self.conv1 = nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=3, stride=1, padding=3, bias=False)
+        self.conv1 = nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=3, stride=1, padding=1, bias=False)
         nn.init.kaiming_normal_(self.conv1.weight)
 
         self.layers = nn.Sequential(
