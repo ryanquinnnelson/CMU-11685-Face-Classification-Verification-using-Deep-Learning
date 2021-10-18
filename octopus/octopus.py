@@ -32,6 +32,7 @@ from octopus.phases.testing import Testing
 # customized to this data
 from customized.formatters import OutputFormatter
 from customized.evaluation import Evaluation, EvaluationCenterLoss
+from customized.verification import Verification
 
 
 class Octopus:
@@ -65,7 +66,7 @@ class Octopus:
             self.optimizerhandler2 = None
 
         # variable handlers
-        self.inputhandler, self.modelhandler = initialize_variable_handlers(config)
+        self.inputhandler, self.modelhandler, self.verification = initialize_variable_handlers(config)
 
         logging.info('octopus initialization is complete.')
 
@@ -115,7 +116,15 @@ class Octopus:
         self.devicehandler.move_model_to_device(model)  # move model before initializing optimizer - see Note 1
         self.wandbconnector.watch(model)
 
-        if self.config['hyperparameters']['criterion_type'] == 'CenterLoss':
+        if self.config['kaggle']['competition'] == 'idl-fall21-hw2p2s2-face-verification':
+            # initialize model components
+            loss_func = self.criterionhandler.get_loss_function()
+            optimizer = self.optimizerhandler.get_optimizer(model)
+            scheduler = self.schedulerhandler.get_scheduler(optimizer)
+
+            self.phasehandler.run_verification(model, optimizer, scheduler, self.verification)
+
+        elif self.config['hyperparameters']['criterion_type'] == 'CenterLoss':
 
             # num_classes, feat_dim, device
             centerloss_args = {
@@ -347,4 +356,11 @@ def initialize_variable_handlers(config):
     else:
         modelhandler = None
 
-    return inputhandler, modelhandler
+    # verification
+    if config['kaggle']['competition'] == 'idl-fall21-hw2p2s2-face-verification':
+        verification = Verification(config['data']['data_dir'], config['output']['output_dir'],
+                                    config['DEFAULT']['run_name'])
+    else:
+        verification = None
+
+    return inputhandler, modelhandler, verification

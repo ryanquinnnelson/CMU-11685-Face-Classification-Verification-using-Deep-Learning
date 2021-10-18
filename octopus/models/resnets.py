@@ -530,6 +530,68 @@ class Resnet34_v4(nn.Module):
             return output
 
 
+# same as v3 but modifies forward to get flatten layer for embedding
+class Resnet34_v5(nn.Module):
+    def __init__(self, in_features, num_classes, feat_dim=2):
+        super().__init__()
+        self.feat_dim = feat_dim
+
+        # conv1
+        self.conv1 = nn.Conv2d(in_channels=in_features, out_channels=64, kernel_size=3, stride=1, padding=3, bias=False)
+        nn.init.kaiming_normal_(self.conv1.weight)
+
+        self.layers = nn.Sequential(
+            self.conv1,
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+
+            # nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+
+            # conv2..x
+            ResidualBlock3(64, 64),
+            ResidualBlock3(64, 64),
+            ResidualBlock3(64, 64),
+
+            # conv3..x
+            ResidualBlock3(64, 128),
+            ResidualBlock3(128, 128),
+            ResidualBlock3(128, 128),
+            ResidualBlock3(128, 128),
+
+            # conv4..x
+            ResidualBlock3(128, 256),
+            ResidualBlock3(256, 256),
+            ResidualBlock3(256, 256),
+            ResidualBlock3(256, 256),
+            ResidualBlock3(256, 256),
+            ResidualBlock3(256, 256),
+
+            # conv5..x
+            ResidualBlock3(256, 512),
+            ResidualBlock3(512, 512),
+            ResidualBlock3(512, 512),
+
+            # summary
+            nn.AdaptiveAvgPool2d((1, 1)),
+            nn.Flatten(),
+        )
+        # decoding layer
+        self.linear = nn.Sequential(
+            nn.Linear(512, num_classes))
+
+        self.linear_feat_dim = nn.Linear(512, self.feat_dim)
+        self.activation = nn.ReLU(inplace=True)
+
+    def forward(self, x, return_embedding=False):
+        embedding = self.layers(x)
+        output = self.linear(embedding)
+
+        if return_embedding:
+            return embedding, output
+        else:
+            return output
+
+
 class BottleneckResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels, use_shortcut, mid_stride, shortcut_stride):
         super().__init__()

@@ -6,6 +6,7 @@ __author__ = 'ryanquinnnelson'
 import logging
 import time
 
+from customized.verification import Verification
 
 class PhaseHandler:
 
@@ -121,3 +122,7 @@ class PhaseHandler:
             if self.statshandler.stopping_criteria_is_met(epoch, self.wandbconnector):
                 logging.info('Early stopping criteria is met. Stopping the training process...')
                 break  # stop running epochs
+
+    def run_verification(self, model, optimizer, scheduler, verification):
+        self._load_checkpoint(model, optimizer, scheduler)
+        verification.verify(model, self.first_epoch-1)
