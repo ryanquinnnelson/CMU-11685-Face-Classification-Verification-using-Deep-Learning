@@ -118,7 +118,6 @@ class Octopus:
 
         if self.config['kaggle']['competition'] == 'idl-fall21-hw2p2s2-face-verification':
             # initialize model components
-            loss_func = self.criterionhandler.get_loss_function()
             optimizer = self.optimizerhandler.get_optimizer(model)
             scheduler = self.schedulerhandler.get_scheduler(optimizer)
 

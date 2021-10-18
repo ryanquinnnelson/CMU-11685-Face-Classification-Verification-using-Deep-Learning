@@ -4,16 +4,20 @@ import os
 import torch.nn as nn
 import pandas as pd
 from datetime import datetime
+import logging
+import torch
 
 
 class Verification:
 
     def __init__(self, data_dir, output_dir, run_name):
+        logging.info('Initializing verification...')
         self.data_dir = data_dir
         self.output_dir = output_dir
         self.run_name = run_name
 
-    def verify(self, model, epoch):
+    def verify(self, model, epoch, devicehandler):
+        logging.info('Performing verification...')
         with open(os.path.join(self.data_dir, 'verification_pairs_test.txt'), 'r') as fd:
             content = fd.readlines()
 
@@ -21,36 +25,41 @@ class Verification:
             [transforms.ToTensor(), transforms.Normalize(mean=(0.229, 0.224, 0.225), std=(0.485, 0.456, 0.406))])
         compute_sim = nn.CosineSimilarity(dim=0)
 
-        # for each pair of images in the test file
-        results = []
-        for line in content[:5]:
-            file_a, file_b = line.strip().split()
+        with torch.no_grad():  # deactivate autograd engine to improve efficiency
 
-            # read in images
-            img_a = Image.open(os.path.join(self.data_dir, file_a))
-            img_a = composition(img_a).unsqueeze(0)
-
-            img_b = Image.open(os.path.join(self.data_dir, file_b))
-            img_b = composition(img_b).unsqueeze(0)
-
-            #     # move to device
-            #     img_a.to(torch.device('cuda'))
-            #     img_b.to(torch.device('cuda'))
-            # move model to cpu
+            # Set model in validation mode
             model.eval()
-            model = model.cpu()
 
-            # send each image through model and get embedding
-            embedding_a, out_a = model.forward(img_a, return_embedding=True)
-            embedding_b, out_b = model.forward(img_b, return_embedding=True)
+            # for each pair of images in the test file
+            results = []
+            for i, line in enumerate(content):
+                if i % 1000 == 0:
+                    logging.info(f'Line {i}...')
+                file_a, file_b = line.strip().split()
 
-            # calculate similarity
-            feats_a = embedding_a.squeeze(0)
-            feats_b = embedding_b.squeeze(0)
-            sim = compute_sim(feats_a, feats_b)
-            print(sim.item())
-            # store entry
-            results.append([file_a + " " + file_b, sim.item()])
+                # read in images
+                img_a = Image.open(os.path.join(self.data_dir, 'verification_data', file_a))
+                img_a = composition(img_a).unsqueeze(0)
+
+                img_b = Image.open(os.path.join(self.data_dir, 'verification_data', file_b))
+                img_b = composition(img_b).unsqueeze(0)
+
+                if devicehandler.device.type == 'cuda':
+                    # move to device
+                    img_a = img_a.to(torch.device('cuda'))
+                    img_b = img_b.to(torch.device('cuda'))
+
+                # send each image through model and get embedding
+                embedding_a, out_a = model.forward(img_a, return_embedding=True)
+                embedding_b, out_b = model.forward(img_b, return_embedding=True)
+
+                # calculate similarity
+                feats_a = embedding_a.squeeze(0)
+                feats_b = embedding_b.squeeze(0)
+                sim = compute_sim(feats_a, feats_b)
+
+                # store entry
+                results.append([file_a + " " + file_b, sim.item()])
 
         # build dataframe of the results
         df = pd.DataFrame(results, columns=['Id', 'Category'])

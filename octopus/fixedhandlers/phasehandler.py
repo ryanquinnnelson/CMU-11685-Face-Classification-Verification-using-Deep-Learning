@@ -124,5 +124,6 @@ class PhaseHandler:
                 break  # stop running epochs
 
     def run_verification(self, model, optimizer, scheduler, verification):
-        self._load_checkpoint(model, optimizer, scheduler)
-        verification.verify(model, self.first_epoch-1)
+        if self.load_from_checkpoint:
+            self._load_checkpoint(model, optimizer, scheduler)
+        verification.verify(model, self.first_epoch-1, self.devicehandler)
