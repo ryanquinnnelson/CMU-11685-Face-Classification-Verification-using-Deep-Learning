@@ -7,8 +7,22 @@ import logging
 
 
 class StatsHandler:
+    """
+    Define object to manage stats collection and use.
+    """
 
     def __init__(self, val_metric_name, comparison_metric, comparison_best_is_max, comparison_patience):
+        """
+        Initialize StatsHandler. Set the num_epochs_worse_than_best_model equal to 0.
+
+        Args:
+            val_metric_name (str): Name of the second metric returned from Evaluation.evaluate_model() for clarity in
+            stats collection.
+            comparison_metric (str): Name of the metric to be used for comparison between models for the purposes of
+            early stopping.
+            comparison_best_is_max (Boolean): True if higher values of the comparison metric mean better performance.
+            comparison_patience (int): Number of epochs current model can perform worse than a previous run before early stopping.
+        """
         logging.info('Initializing stats handling...')
         self.stats = {'epoch': [],
                       'runtime': [],
@@ -22,6 +36,17 @@ class StatsHandler:
         self.num_epochs_worse_than_best_model = 0
 
     def _model_is_worse_by_comparison_metric(self, epoch, wandbconnector):
+        """
+        Determine whether this model is performing better or worse than any previous run for the given epoch and
+        predefined comparison metric.
+
+        Args:
+            epoch (int): epoch to compare
+            wandbconnector (WandbConnector): connection to wandb
+
+        Returns: True if model is worse, False otherwise.
+
+        """
 
         # check whether the metric we are using for comparison against other runs
         # is better than other runs for this epoch
@@ -54,6 +79,18 @@ class StatsHandler:
         return model_is_worse
 
     def stopping_criteria_is_met(self, epoch, wandbconnector):
+        """
+        Determine whether stopping criteria is met. Criteria is currently:
+        1. Does the current model perform worse than any previous run for longer than is allowed according to
+        comparison_patience?
+
+        Args:
+            epoch (int): epoch to compare
+            wandbconnector (WandbConnector): connection to wandb
+
+        Returns: True if stopping criteria is met, False otherwise.
+
+        """
         logging.info('Checking early stopping criteria...')
 
         # criteria 1 - metric comparison
@@ -78,6 +115,15 @@ class StatsHandler:
         return stopping_criteria_met
 
     def report_stats(self, wandbconnector):
+        """
+        Report latest stats for all captured metrics to wandb.
+
+        Args:
+            wandbconnector (WandbConnector): connection to wandb
+
+        Returns: None
+
+        """
 
         # save epoch stats to wandb
         epoch_stats_dict = dict()
@@ -87,6 +133,19 @@ class StatsHandler:
         logging.info(f'stats:{epoch_stats_dict}')
 
     def collect_stats(self, epoch, train_loss, val_loss, val_metric, start, end):
+        """
+        Collect and store stats for a given epoch of model training.
+        Args:
+            epoch (int): number of the epoch
+            train_loss (float): average training loss
+            val_loss (float): average validation loss
+            val_metric (float): second validation metric calculated during validation
+            start (float): starting time of the epoch
+            end (float): ending time of the epoch
+
+        Returns: None
+
+        """
 
         logging.info(f'Collecting stats for epoch {epoch}...')
 
@@ -101,6 +160,15 @@ class StatsHandler:
         self.stats[self.val_metric_name].append(val_metric)
 
     def report_previous_stats(self, wandbconnector):
+        """
+        For each epoch stored in the stats dictionary, send all metrics for that epoch to wandb.
+
+        Args:
+            wandbconnector (WandbConnector): connection to wandb
+
+        Returns:
+
+        """
         logging.info('Reporting previous stats...')
         n_stats = len(self.stats[list(self.stats.keys())[0]])  # calculate how many epochs of stats were collected
         for i in range(0, n_stats):

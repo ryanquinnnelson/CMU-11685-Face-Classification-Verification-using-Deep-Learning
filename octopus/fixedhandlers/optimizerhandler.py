@@ -9,13 +9,31 @@ import torch.optim as optim
 
 
 class OptimizerHandler:
+    """
+    Defines object to handle initializing optimizers.
+    """
 
     def __init__(self, optimizer_type, optimizer_kwargs):
+        """
+        Initialize OptimizerHandler.
+        Args:
+            optimizer_type (str): represents the optimizer to construct
+            optimizer_kwargs (Dict): dictionary of arguments for use in optimizer initialization
+        """
         logging.info('Initializing optimizer handling...')
         self.optimizer_type = optimizer_type
         self.optimizer_kwargs = optimizer_kwargs
 
     def get_optimizer(self, model):
+        """
+        Obtain the optimizer based on parameters.
+
+        Args:
+            model (nn.Module): model optimizer will manage
+
+        Returns: nn.optim optimizer
+
+        """
         opt = None
         if self.optimizer_type == 'Adam':
             opt = optim.Adam(model.parameters(), **self.optimizer_kwargs)

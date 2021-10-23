@@ -126,6 +126,7 @@ class Octopus:
             logging.info('octopus is not downloading data.')
             logging.info(f'octopus expects data to be available in {self.inputhandler.data_dir}.')
 
+# TODO: assign model to output of move_model_to_device()
     def run_pipeline(self):
         """
         Runs the deep learning pipeline. Builds model, moves model to device (if GPU), setups up wandb to watch the
