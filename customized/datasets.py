@@ -11,6 +11,9 @@ from PIL import Image
 
 
 class TestDataset(Dataset):
+    """
+    Defines image dataset for test data.
+    """
 
     def __init__(self, test_dir, transform):
         # get all filenames in numerical order

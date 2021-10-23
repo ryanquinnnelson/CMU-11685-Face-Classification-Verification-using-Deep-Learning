@@ -1,5 +1,5 @@
 """
-Thins out training dataset to create toy dataset.
+Thins out training dataset to create toy dataset for development purposes only.
 """
 __author__ = 'ryanquinnnelson'
 

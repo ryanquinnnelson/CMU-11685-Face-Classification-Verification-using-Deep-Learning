@@ -14,14 +14,37 @@ import torch
 
 
 class Verification:
+    """
+    Defines object to manage Face Verification step.
+    """
 
     def __init__(self, data_dir, output_dir, run_name):
+        """
+
+        Args:
+            data_dir (str): fully qualified path to data directory
+            output_dir (str): fully qualified path to output directory
+            run_name (str): Name of this run
+        """
         logging.info('Initializing verification...')
         self.data_dir = data_dir
         self.output_dir = output_dir
         self.run_name = run_name
 
     def verify(self, model, epoch, devicehandler):
+        """
+        Run verification process. For each pair of filenames in the verification_pairs_test.txt, obtain the feature
+        embedding using a pretrained model. Compare the feature embeddings using cosine similarity and save the results.
+        Format and output all results.
+
+        Args:
+            model (nn.Module): pretrained model
+            epoch (int): epoch for which model was last trained
+            devicehandler (DeviceHandler): object to manage interaction with torch.device
+
+        Returns: None
+
+        """
         logging.info('Performing verification...')
         with open(os.path.join(self.data_dir, 'verification_pairs_test.txt'), 'r') as fd:
             content = fd.readlines()
