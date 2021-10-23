@@ -38,21 +38,31 @@ from customized.datasets import TestDataset
 
 
 def _compose_transforms(transforms_list):
+    """
+    Build a composition of transformations to perform on image data.
+    Args:
+        transforms_list (List): list of strings representing individual transformations,
+        in the order they should be performed
+
+    Returns: transforms.Compose object containing all desired transformations
+
+    """
     t_list = []
 
     for each in transforms_list:
         if each == 'RandomHorizontalFlip':
-            t_list.append(transforms.RandomHorizontalFlip(0.1))
+            t_list.append(transforms.RandomHorizontalFlip(0.1))  # customized because 0.5 is too much
         elif each == 'ToTensor':
             t_list.append(transforms.ToTensor())
         elif each == 'RandomRotation':
-            t_list.append(transforms.RandomRotation(degrees=15))
+            t_list.append(transforms.RandomRotation(degrees=15))  # customized based on dataset
         elif each == 'Normalize':
             t_list.append(
                 transforms.Normalize(mean=(0.229, 0.224, 0.225),
                                      std=(0.485, 0.456, 0.406)))  # tuple size == channels, imagenet values
         elif each == 'ColorJitter':
-            t_list.append(transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
+            t_list.append(transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5,
+                                                 hue=0.5))  # customized based on dataset
 
     composition = transforms.Compose(t_list)
 
@@ -60,6 +70,9 @@ def _compose_transforms(transforms_list):
 
 
 class ImageDatasetHandler:
+    """
+    Object that handles image datasets.
+    """
 
     def __init__(self,
                  data_dir,
@@ -67,16 +80,38 @@ class ImageDatasetHandler:
                  val_dir,
                  test_dir,
                  transforms_list):
+        """
+        Initialize image dataset handler.
+
+        Args:
+            data_dir (str): Fully-qualified path to data directory inside which separate directories exist for training,
+            validation, and test data.
+            train_dir (str): Fully-qualified path to directory for training data
+            val_dir (str): Fully-qualified path to directory for validation data
+            test_dir (str): Fully-qualified path to dirctory for test data
+            transforms_list (List): list of strings representing individual transformations, in the order they should be
+             performed
+        """
         logging.info('Initializing dataset handling...')
         self.data_dir = data_dir
         self.train_dir = train_dir
         self.val_dir = val_dir
         self.test_dir = test_dir
         self.transforms_list = transforms_list
+
+        # determine whether normalize transform should also be applied to validation and test data
         self.should_normalize_val = True if 'Normalize' in transforms_list else False
         self.should_normalize_test = True if 'Normalize' in transforms_list else False
 
     def get_train_dataset(self):
+        """
+        Obtain the Dataset object managing training data and write the class_to_idx mapping to the data directory for
+        later use.
+
+        Assumes training data is organized to work with ImageFolder.
+        Returns: ImageFolder(Dataset)
+
+        """
         transform = _compose_transforms(self.transforms_list)
         imf = ImageFolder(self.train_dir, transform=transform)
         logging.info(f'Loaded {len(imf.imgs)} images as training data.')
@@ -92,6 +127,13 @@ class ImageDatasetHandler:
         return imf
 
     def get_val_dataset(self):
+        """
+        Obtain the Dataset object managing validation data.
+
+        Assumes validation data is organized to work with ImageFolder.
+        Returns: ImageFolder(Dataset)
+
+        """
 
         if self.should_normalize_val:
             logging.info('Normalizing validation data to match normalization of training data...')
@@ -104,6 +146,13 @@ class ImageDatasetHandler:
         return imf
 
     def get_test_dataset(self):
+        """
+        Obtain the Dataset object managing testing data using customized TestDataset.
+
+        Assumes testing data is not organized to work with ImageFolder.
+        Returns: TestDataset(Dataset)
+
+        """
 
         if self.should_normalize_test:
             logging.info('Normalizing test data to match normalization of training data...')

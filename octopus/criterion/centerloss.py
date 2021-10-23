@@ -16,15 +16,15 @@ class CenterLoss(nn.Module):
     """
     Defines a centerloss loss function.
     """
-    """
-
-
-    Args:
-        num_classes (int): number of classes.
-        feat_dim (int): feature dimension.
-    """
 
     def __init__(self, num_classes, feat_dim, device=torch.device('cpu')):
+        """
+
+        Args:
+            num_classes (int): number of classes
+            feat_dim (int): number of features
+            device (torch.device): device on which model is being run
+        """
         super(CenterLoss, self).__init__()
         self.num_classes = num_classes
         self.feat_dim = feat_dim
@@ -39,9 +39,12 @@ class CenterLoss(nn.Module):
         Consider using one of the following signatures instead:
         addmm_(Tensor mat1, Tensor mat2, *, Number beta, Number alpha)
 
-        :param x (Tensor): feature matrix with shape (batch_size, feat_dim)
-        :param labels (Tensor): ground truth labels with shape (batch_size)
-        :return:
+        Args:
+            x (Tensor): feature matrix with shape (batch_size, feat_dim)
+            labels (Tensor): ground truth labels with shape (batch_size)
+
+        Returns:
+
         """
 
         batch_size = x.size(0)

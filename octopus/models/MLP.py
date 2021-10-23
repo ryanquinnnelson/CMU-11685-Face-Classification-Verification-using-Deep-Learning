@@ -12,6 +12,17 @@ from octopus.models.helper import _get_activation_function
 
 
 def _build_linear_sequence(sizes, activation_func, dropout_rate, batch_norm):
+    """
+    Construct a List of all model layers in the MLP.
+    Args:
+        sizes (List): List of the size of each hidden layer, in layer order
+        activation_func (str): activation function to use in each layer
+        dropout_rate (float): Dropout rate
+        batch_norm (Boolean): whether to use batch normalization after each linear layer
+
+    Returns: List of all model layers in the MLP
+
+    """
     sequence = []
     num_hidden_layers = len(sizes) - 2  # input and output not included
     for i in range(num_hidden_layers + 1):  # add final layer for output
@@ -45,6 +56,10 @@ def _build_linear_sequence(sizes, activation_func, dropout_rate, batch_norm):
 
 
 class MLP(nn.Module):
+    """
+    Defines an MLP model.
+
+    """
     def __init__(self,
                  input_size,
                  output_size,
@@ -52,6 +67,16 @@ class MLP(nn.Module):
                  activation_func,
                  dropout_rate,
                  batch_norm):
+        """
+        Initialize an MLP object.
+        Args:
+            input_size (int): size of the input
+            output_size (int): size of the output
+            hidden_layer_sizes (List): List of the size of each hidden layer, in layer order
+            activation_func (str): activation function to use in each layer
+            dropout_rate (float): Dropout rate
+            batch_norm (Boolean): whether to use batch normalization after each linear layer
+        """
         super(MLP, self).__init__()
 
         # set layer sizes
@@ -64,4 +89,13 @@ class MLP(nn.Module):
         self.model = nn.Sequential(OrderedDict(sequence))
 
     def forward(self, x):
+        """
+        Perform forward pass on model.
+
+        Args:
+            x (Tensor): batch of data
+
+        Returns: Tensor of model output
+
+        """
         return self.model(x)  # self.layers(x) also works

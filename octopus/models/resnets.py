@@ -4,41 +4,27 @@ All things Resnet.
 
 __author__ = 'ryanquinnnelson'
 
-import logging
-
 import torch.nn as nn
 
 
-def _init_weights(mod):
-    if isinstance(mod, nn.Conv2d):
-        nn.init.kaiming_normal_(mod.weight)
+def _init_weights(layer):
+    """
+    Perform initialization of layer weights if layer is a Conv2d layer.
+    Args:
+        layer: layer under consideration
+
+    Returns: None
+
+    """
+    if isinstance(layer, nn.Conv2d):
+        nn.init.kaiming_normal_(layer.weight)
 
 
-# Identical to class presented in Recitation 6
-class SimpleResidualBlock(nn.Module):
-    def __init__(self, channel_size, stride=1):
-        super().__init__()
-        self.conv1 = nn.Conv2d(channel_size, channel_size, kernel_size=3, stride=stride, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(channel_size)
-        if stride == 1:
-            self.shortcut = nn.Identity()
-        else:
-            self.shortcut = nn.Conv2d(channel_size, channel_size, kernel_size=1, stride=stride)
-        self.relu = nn.ReLU()
-
-    def forward(self, x):
-        out = self.conv1(x)
-        out = self.bn1(out)
-
-        shortcut = self.shortcut(x)
-
-        out = self.relu(out + shortcut)
-
-        return out
-
-
-# Inspiration from https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
 class ResidualBlock(nn.Module):
+    """
+    Define a standard residual block of a Resnet. Takes inspiration from
+    https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
+    """
 
     def __init__(self, in_channels, out_channels):
         super().__init__()
@@ -82,9 +68,14 @@ class ResidualBlock(nn.Module):
         return out
 
 
-# uses identity rather than skip shortcut
-# this improves learning rate quite a bit for some reason
 class ResidualBlock2(nn.Module):
+    """
+    Define a standard residual block of a Resnet.
+
+    The difference from ResidualBlock is that ResidualBlock2 uses Identity layers for the shortcut rather than skipping
+    the shortcut when it does not need to change output dimension. This improves learning rate quite a bit for an
+     unknown reason.
+    """
 
     def __init__(self, in_channels, out_channels):
         super().__init__()
@@ -98,7 +89,6 @@ class ResidualBlock2(nn.Module):
 
             # first conv layer
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=self.stride, padding=1, bias=False),
-            # initialize with Kaiming normal
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
 
@@ -129,8 +119,12 @@ class ResidualBlock2(nn.Module):
         return out
 
 
-# includes kaiming initialization
 class ResidualBlock3(nn.Module):
+    """
+    Defines a residual block in a Resnet.
+
+    This is the same as ResidualBlock2, except it includes kaiming initialization of all CNN layers.
+    """
 
     def __init__(self, in_channels, out_channels):
         super().__init__()
@@ -180,8 +174,13 @@ class ResidualBlock3(nn.Module):
         return out
 
 
-# includes kaiming initialization in a way that doesn't introduce twice the number of layers
 class ResidualBlock4(nn.Module):
+    """
+    Defines a residual block for Resnet.
+
+    Same as ResidualBlock3 except it includes kaiming initialization in a way that doesn't introduce twice the number
+    of layers when viewing model summary
+    """
 
     def __init__(self, in_channels, out_channels):
         super().__init__()
@@ -228,8 +227,15 @@ class ResidualBlock4(nn.Module):
         return out
 
 
-# Inspiration from https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
 class Resnet18(nn.Module):
+    """
+    Implements Resnet18. Takes inspiration from
+    https://towardsdatascience.com/residual-network-implementing-resnet-a7da63c7b278
+
+    Leaves kernel_size,stride,and padding of first CNN layer as defined in the Resnet paper (7,2,3).
+    Includes extra linear layers for use in extracting the feature embedding from the model.
+    """
+
     def __init__(self, in_features, num_classes, feat_dim=2):
         super().__init__()
         self.feat_dim = feat_dim
@@ -271,6 +277,16 @@ class Resnet18(nn.Module):
         self.activation = nn.ReLU(inplace=True)
 
     def forward(self, x, return_embedding=False):
+        """
+        Execute forward pass on model using data and either return the output or the output and embedding.
+        Args:
+            x (Tensor): batch of data
+            return_embedding (Boolean): True to return embedding as well as model output.
+
+        Returns: Tensor representing model output if return_embedding=False,
+        Tuple (embedding,output) if return_embedding=True.
+
+        """
         embedding = self.layers(x)
         embedding_out = self.activation(self.linear_feat_dim(embedding))
         output = self.linear(embedding)
@@ -282,6 +298,13 @@ class Resnet18(nn.Module):
 
 
 class Resnet34(nn.Module):
+    """
+    Implements Resnet34.
+
+    Leaves kernel_size,stride,and padding of first CNN layer as defined in the Resnet paper (7,2,3).
+    Includes extra linear layers for use in extracting the feature embedding from the model.
+    """
+
     def __init__(self, in_features, num_classes, feat_dim=2):
         super().__init__()
         self.feat_dim = feat_dim
@@ -330,6 +353,16 @@ class Resnet34(nn.Module):
         self.activation = nn.ReLU(inplace=True)
 
     def forward(self, x, return_embedding=False):
+        """
+        Execute forward pass on model using data and either return the output or the output and embedding.
+        Args:
+            x (Tensor): batch of data
+            return_embedding (Boolean): True to return embedding as well as model output.
+
+        Returns: Tensor representing model output if return_embedding=False,
+        Tuple (embedding,output) if return_embedding=True.
+
+        """
         embedding = self.layers(x)
         embedding_out = self.activation(self.linear_feat_dim(embedding))
         output = self.linear(embedding)
@@ -341,6 +374,10 @@ class Resnet34(nn.Module):
 
 
 class Resnet34_v2(nn.Module):
+    """
+    Implements Resnet34. Same as Resnet34 except it uses ResidualBlock2.
+    """
+
     def __init__(self, in_features, num_classes, feat_dim=2):
         super().__init__()
         self.feat_dim = feat_dim
@@ -389,6 +426,16 @@ class Resnet34_v2(nn.Module):
         self.activation = nn.ReLU(inplace=True)
 
     def forward(self, x, return_embedding=False):
+        """
+        Execute forward pass on model using data and either return the output or the output and embedding.
+        Args:
+            x (Tensor): batch of data
+            return_embedding (Boolean): True to return embedding as well as model output.
+
+        Returns: Tensor representing model output if return_embedding=False,
+        Tuple (embedding,output) if return_embedding=True.
+
+        """
         embedding = self.layers(x)
         embedding_out = self.activation(self.linear_feat_dim(embedding))
         output = self.linear(embedding)
@@ -399,10 +446,14 @@ class Resnet34_v2(nn.Module):
             return output
 
 
-# change kernel size of first layer to 3 to work with smaller images in our dataset
-# kaiming initialization for initial conv layer
-# remove max pool layer
 class Resnet34_v3(nn.Module):
+    """
+    Implements Resnet34. Same as Resnet34_v2 except it uses ResidualBlock3 and changes kernel_size,stride to 3,1
+    instead of 7,2 from original implementation in order to work better with the smaller images in a 64 x 64 dimension
+    dataset. Includes kaiming initialization for first CNN layer. Removes the max
+    pool layer from the original implementation.
+    """
+
     def __init__(self, in_features, num_classes, feat_dim=2):
         super().__init__()
         self.feat_dim = feat_dim
@@ -454,6 +505,16 @@ class Resnet34_v3(nn.Module):
         self.activation = nn.ReLU(inplace=True)
 
     def forward(self, x, return_embedding=False):
+        """
+        Execute forward pass on model using data and either return the output or the output and embedding.
+        Args:
+            x (Tensor): batch of data
+            return_embedding (Boolean): True to return embedding as well as model output.
+
+        Returns: Tensor representing model output if return_embedding=False,
+        Tuple (embedding,output) if return_embedding=True.
+
+        """
         embedding = self.layers(x)
         embedding_out = self.activation(self.linear_feat_dim(embedding))
         output = self.linear(embedding)
@@ -464,11 +525,11 @@ class Resnet34_v3(nn.Module):
             return output
 
 
-# change kernel size of first layer to 3 to work with smaller images in our dataset
-# kaiming initialization for initial conv layer
-# remove max pool layer
-# initializes weights in a way that doesn't double the number of layers
 class Resnet34_v4(nn.Module):
+    """
+    Implements Resnet34. Same as Resnet34_v3 except it uses ResidualBlock4. Moves kaiming initialization for first CNN
+    layer to a function to prevent duplicate layers from showing up in model summary.
+    """
     def __init__(self, in_features, num_classes, feat_dim=512):
         super().__init__()
         self.feat_dim = feat_dim
@@ -520,6 +581,16 @@ class Resnet34_v4(nn.Module):
         self.layers.apply(_init_weights)
 
     def forward(self, x, return_embedding=False):
+        """
+        Execute forward pass on model using data and either return the output or the output and embedding.
+        Args:
+            x (Tensor): batch of data
+            return_embedding (Boolean): True to return embedding as well as model output.
+
+        Returns: Tensor representing model output if return_embedding=False,
+        Tuple (embedding,output) if return_embedding=True.
+
+        """
         embedding = self.layers(x)
         embedding_out = self.activation(self.linear_feat_dim(embedding))
         output = self.linear(embedding)
@@ -530,8 +601,12 @@ class Resnet34_v4(nn.Module):
             return output
 
 
-# same as v3 but modifies forward to get flatten layer for embedding
 class Resnet34_v5(nn.Module):
+    """
+    Implements Resnet34. Same as Resnet34_v3 except it modifies forward() to use Flatten() layer for embedding. This is
+    a workaround to load trained models that were initialized with feat_dim=2 (because it can't be easily changed
+    afterward).
+    """
     def __init__(self, in_features, num_classes, feat_dim=2):
         super().__init__()
         self.feat_dim = feat_dim
@@ -583,6 +658,16 @@ class Resnet34_v5(nn.Module):
         self.activation = nn.ReLU(inplace=True)
 
     def forward(self, x, return_embedding=False):
+        """
+        Execute forward pass on model using data and either return the output or the output and embedding.
+        Args:
+            x (Tensor): batch of data
+            return_embedding (Boolean): True to return embedding as well as model output.
+
+        Returns: Tensor representing model output if return_embedding=False,
+        Tuple (embedding,output) if return_embedding=True.
+
+        """
         embedding = self.layers(x)
         output = self.linear(embedding)
 
@@ -593,6 +678,9 @@ class Resnet34_v5(nn.Module):
 
 
 class BottleneckResidualBlock(nn.Module):
+    """
+    Defines a residual block that involves bottlenecking, for use in larger Resnet models.
+    """
     def __init__(self, in_channels, out_channels, use_shortcut, mid_stride, shortcut_stride):
         super().__init__()
 
@@ -605,23 +693,16 @@ class BottleneckResidualBlock(nn.Module):
             # first conv layer
             nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=1, padding=0, bias=False),
             nn.BatchNorm2d(out_channels),
-            #             nn.ReLU(inplace=True),
 
             # second conv layer
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=mid_stride, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),
-            #             nn.ReLU(inplace=True),
 
             # third conv layer
             nn.Conv2d(out_channels, out_channels * 4, kernel_size=1, stride=1, padding=0, bias=False),
             nn.BatchNorm2d(out_channels * 4),
             nn.ReLU(inplace=True)
         )
-
-        #         # shortcut
-        #         if in_channels == out_channels:
-        #             self.shortcut = nn.Identity()
-        #         else:
 
         if self.use_shortcut:
             self.shortcut = nn.Sequential(
@@ -646,6 +727,12 @@ class BottleneckResidualBlock(nn.Module):
 
 
 class Resnet50(nn.Module):
+    """
+    Implements Resnet50.
+
+    Leaves kernel_size,stride,and padding of first CNN layer as defined in the Resnet paper (7,2,3).
+    Includes extra linear layers for use in extracting the feature embedding from the model.
+    """
     def __init__(self, in_features, num_classes):
         super().__init__()
 
@@ -699,6 +786,12 @@ class Resnet50(nn.Module):
 
 
 class Resnet101(nn.Module):
+    """
+    Implements Resnet101.
+
+    Leaves kernel_size,stride,and padding of first CNN layer as defined in the Resnet paper (7,2,3).
+    Includes extra linear layers for use in extracting the feature embedding from the model.
+    """
     def __init__(self, in_features, num_classes):
         super().__init__()
 
@@ -771,6 +864,12 @@ class Resnet101(nn.Module):
 
 
 class Resnet152(nn.Module):
+    """
+    Implements Resnet152.
+
+    Leaves kernel_size,stride,and padding of first CNN layer as defined in the Resnet paper (7,2,3).
+    Includes extra linear layers for use in extracting the feature embedding from the model.
+    """
     def __init__(self, in_features, num_classes):
         super().__init__()
 

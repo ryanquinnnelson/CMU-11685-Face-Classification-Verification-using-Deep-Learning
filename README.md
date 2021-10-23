@@ -40,6 +40,7 @@ been updated from the previous version to enable use with image data and CNNs.
 - Automatically saves test output after each epoch
 - Allows user to customize datasets, evaluation, and test output formatting depending on the data
 - Predefined models can be customized via configuration file to facilitate hyperparameter tuning
+- Implements centerloss as a possible loss function
 
 ## Requirements
 

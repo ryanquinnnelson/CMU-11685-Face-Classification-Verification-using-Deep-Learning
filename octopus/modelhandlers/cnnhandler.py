@@ -9,6 +9,16 @@ from octopus.models.CNN import CNN2d
 
 
 def _convert_dict_to_dicts(d):
+    """
+    Convert given dictionary to a list of dictionaries in which each dictionary in the list contains only the arguments
+    related to a single CNN layer.
+
+    Args:
+        d (Dict): dictionary in which each key is composed of an integer representing a layer number and a parameter
+
+    Returns: List of dictionaries
+
+    """
     # determine number of dictionaries to create
     layer_number_set = set()
     for key in d:
@@ -34,8 +44,23 @@ def _convert_dict_to_dicts(d):
 
 
 class CnnHandler:
+    """
+    Defines an object to handle constructing generic CNN models.
+    """
     def __init__(self,
                  model_type, input_size, output_size, activation_func, batch_norm, conv_dict, pool_class, pool_dict):
+        """
+
+        Args:
+            model_type (str): represents the type of CNN to construct
+            input_size (int): size of the input
+            output_size (int): Size of the desired output layer
+            activation_func (str): represents the activation function to use after each cnn layer
+            batch_norm (boolean): True if batch normalization should be used after each cnn layer
+            conv_dicts (Dict): dictionary containing the parameters for each cnn layer
+            pool_class (str): represents the pooling class to use for each pooling layer
+            pool_dicts (Dict): dictionary containing the parameters for each pooling layer
+        """
         logging.info('Initializing model handling...')
         self.model_type = model_type
         self.input_size = input_size
@@ -47,6 +72,11 @@ class CnnHandler:
         self.pool_dicts = _convert_dict_to_dicts(pool_dict)
 
     def get_model(self):
+        """
+        Initialize the model using all parameters.
+        Returns: nn.Module model
+
+        """
         logging.info('Initializing model...')
         model = None
 

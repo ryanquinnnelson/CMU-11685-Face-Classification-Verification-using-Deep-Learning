@@ -6,16 +6,37 @@ __author__ = 'ryanquinnnelson'
 import logging
 import torch
 import numpy as np
-import pandas as pd
 
 
 class Testing:
+    """
+    Defines object to manage testing phase of training.
+    """
+
     def __init__(self, test_loader, devicehandler):
+        """
+        Initialize Testing object.
+
+        Args:
+            test_loader (DataLoader): DataLoader for test data
+            devicehandler (DeviceHandler): manages device on which training is being run
+        """
         logging.info('Loading testing phase...')
         self.test_loader = test_loader
         self.devicehandler = devicehandler
 
     def test_model(self, epoch, num_epochs, model):
+        """
+        Execute one epoch of model testing.
+
+        Args:
+            epoch (int): Epoch being trained
+            num_epochs (int): Total number of epochs to be trained
+            model (nn.Module): model being trained
+
+        Returns: np.array of test output
+
+        """
         logging.info(f'Running epoch {epoch}/{num_epochs} of testing...')
         output = []
 
@@ -26,8 +47,6 @@ class Testing:
 
             # process mini-batches
             for i, batch in enumerate(self.test_loader):
-                # print(i)
-                #     print(batch[:2])
 
                 if type(batch) is tuple:
                     # loader contains inputs and targets
@@ -48,11 +67,6 @@ class Testing:
                 out = out.cpu().detach().numpy()  # extract from gpu if necessary
                 output.append(out)
 
-                # if i < 2:
-                #     print('out\n', np.argmax(out, axis=1))
-                #     print()
-                # print(i, 'output length', out.shape)
-
         combined = np.concatenate(output, axis=0)
-        # print('combined', combined.shape)
+
         return combined
