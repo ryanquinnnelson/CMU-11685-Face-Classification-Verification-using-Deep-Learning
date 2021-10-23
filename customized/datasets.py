@@ -1,3 +1,8 @@
+"""
+Contains all Dataset objects customized to the data.
+"""
+__author__ = 'ryanquinnnelson'
+
 import glob
 import os
 

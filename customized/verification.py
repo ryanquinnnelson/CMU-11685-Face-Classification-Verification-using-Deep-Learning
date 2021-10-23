@@ -1,3 +1,8 @@
+"""
+Runs the verification process for face verification.
+"""
+__author__ = 'ryanquinnnelson'
+
 import torchvision.transforms as transforms
 from PIL import Image
 import os

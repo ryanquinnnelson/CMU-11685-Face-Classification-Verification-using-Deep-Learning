@@ -11,7 +11,24 @@ import octopus.helper as utilities
 
 
 class WandbConnector:
+    """
+    Defines an object which manages the connection to wandb.
+    """
+
     def __init__(self, wandb_dir, entity, run_name, project, notes, tags, config):
+        """
+        Initialize wandb connector.
+        Args:
+            wandb_dir (str): fully-qualified directory where kaggle internal files will be stored (provides user control
+        over their directories)
+            entity (str): name of the wandb user account
+            run_name (str): unique name identifying this run
+            project (str): project name where runs will be stored on wandb
+            notes (str): notes to store with this run
+            tags (List): list of strings representing tags for wandb
+            config (Dict): dictionary of all hyperparameter configurations set for this run
+        """
+
         self.wandb_dir = wandb_dir
         self.entity = entity
         self.run_name = run_name
@@ -23,6 +40,12 @@ class WandbConnector:
         self.run = None
 
     def setup(self):
+        """
+        Perform all steps needed to set up wandb. Create wandb directory, install wandb, and log in to wandb.
+        Returns: None
+
+        """
+
         logging.info('Setting up wandb connection...')
 
         # ensure wandb_dir exists
@@ -33,6 +56,12 @@ class WandbConnector:
         self.wandb_config = self._initialize()
 
     def _initialize(self):
+        """
+         Initialize wandb connection. Define reinitialization to True.
+        Returns:wandb.config object
+
+        """
+
         logging.info('Initializing wandb...')
 
         import wandb
@@ -47,21 +76,59 @@ class WandbConnector:
         return wandb.config
 
     def watch(self, model):
-        import wandb
-        wandb.watch(model)  # log the network weight histograms
+        """
+         Initialize wandb logging of the model to log weight histograms.
+        Args:
+            model (nn.Module): model to watch
 
-    # TODO revise to preprocess dictionary and split up entries with =
+        Returns:None
+
+        """
+
+        logging.info('Watching model with wandb...')
+        import wandb
+        wandb.watch(model)
+
     def log_stats(self, stats_dict):
+        """
+         Upload given stats to wandb.
+        Args:
+            stats_dict (Dict): dictionary of stats to upload to wandb
+
+        Returns:None
+
+        """
+
         import wandb
         wandb.log(stats_dict)
 
     def update_best_model(self, updates_dict):
+        """
+        Update the best model stored in wandb.
+
+        Args:
+            updates_dict (Dict): dictionary of stats to upload to wandb
+
+        Returns:None
+        """
+
         import wandb
 
         for key, value in updates_dict.items():
             wandb.run.summary[key] = value
 
     def _concatenate_run_metrics(self, metric, epoch):
+        """
+        Pull values for all runs for a given (epoch,metric) and combine runs into a single DataFrame.
+
+        Args:
+            metric (str): metric to extract
+            epoch (int): epoch to extract
+
+        Returns:DataFrame with (name, epoch, metric) columns and a row for each run.
+
+        """
+
         runs = self._pull_runs()
         valid_run_metrics = []
         for run in runs:
@@ -84,6 +151,17 @@ class WandbConnector:
         return df
 
     def get_best_value(self, metric, epoch, best_is_max):
+        """
+        Gather all run metrics for a given (epoch, metric) and determine the best run for the data returned.
+
+        Args:
+            metric (str): metric to extract
+            epoch (int): epoch number to extract
+            best_is_max (Boolean): True if the best value will be the maximum value
+
+        Returns:Tuple (str,float) representing the name of the best run and value of the metric of the best run
+
+        """
 
         # gather the metrics for each valid run
         metrics_df = self._concatenate_run_metrics(metric, epoch)
@@ -100,6 +178,12 @@ class WandbConnector:
         return best_name, best_val
 
     def _pull_runs(self):
+        """
+        Pull all run data for the entity and project defined in this connector.
+        Returns: wandb runs object
+
+        """
+
         import wandb
         api = wandb.Api()
 
@@ -108,6 +192,18 @@ class WandbConnector:
 
 
 def _calculate_best_value(metrics_df, metric, epoch, best_is_max):
+    """
+    Given a DataFrame of runs, determine the best run.
+    Args:
+        metrics_df (DataFrame): DataFrame containing columns (name,epoch,metric) and a row for each run.
+        metric (str): metric to extract
+        epoch (int): epoch number to extract
+        best_is_max (Boolean): True if the best value will be the maximum value
+
+    Returns:Tuple (str,float) representing the name of the best run and value of the metric of the best run
+
+    """
+
     if best_is_max:
         # find the max value of the metric for each epoch
         bests = metrics_df.groupby(by='epoch').max().reset_index()
@@ -122,6 +218,12 @@ def _calculate_best_value(metrics_df, metric, epoch, best_is_max):
 
 
 def _install():
+    """
+    Install wandb version 0.10.8 using pip.
+    Returns: None
+
+    """
+
     logging.info('Installing wandb...')
 
     process = subprocess.Popen(['pip', 'install', '--upgrade', 'wandb==0.10.8'],
@@ -132,6 +234,12 @@ def _install():
 
 
 def _login():
+    """
+    Log into wandb.
+    Returns: None
+
+    """
+
     logging.info('Logging into wandb...')
 
     import wandb

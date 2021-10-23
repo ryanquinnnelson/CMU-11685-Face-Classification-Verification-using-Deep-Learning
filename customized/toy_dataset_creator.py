@@ -1,6 +1,8 @@
 """
 Thins out training dataset to create toy dataset.
 """
+__author__ = 'ryanquinnnelson'
+
 import os
 import sys
 import glob

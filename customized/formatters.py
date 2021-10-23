@@ -1,3 +1,8 @@
+"""
+Contains all Formatter objects customized to the data.
+"""
+__author__ = 'ryanquinnnelson'
+
 import pandas as pd
 import numpy as np
 import json

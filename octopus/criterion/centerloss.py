@@ -1,12 +1,23 @@
+"""
+All things related to centerloss.
+
+The following piece of code for Center Loss has been pulled and modified based on the code from the GitHub
+Repo: https://github.com/KaiyangZhou/pytorch-center-loss
+
+Reference: Wen et al. A Discriminative Feature Learning Approach for Deep Face Recognition. ECCV 2016.
+"""
+__author__ = 'ryanquinnnelson'
+
 import torch
 import torch.nn as nn
-import logging
+
 
 class CenterLoss(nn.Module):
     """
-    The following piece of code for Center Loss has been pulled and modified based on the code from the GitHub Repo: https://github.com/KaiyangZhou/pytorch-center-loss
+    Defines a centerloss loss function.
+    """
+    """
 
-Reference: Wen et al. A Discriminative Feature Learning Approach for Deep Face Recognition. ECCV 2016.
 
     Args:
         num_classes (int): number of classes.
@@ -18,21 +29,21 @@ Reference: Wen et al. A Discriminative Feature Learning Approach for Deep Face R
         self.num_classes = num_classes
         self.feat_dim = feat_dim
         self.device = device
-        # logging.info(f'device is {device}')
-
         self.centers = nn.Parameter(torch.randn(self.num_classes, self.feat_dim).to(self.device))
 
     def forward(self, x, labels):
         """
-        Args:
-            x: feature matrix with shape (batch_size, feat_dim).
-            labels: ground truth labels with shape (batch_size).
 
         UserWarning: This overload of addmm_ is deprecated:
         addmm_(Number beta, Number alpha, Tensor mat1, Tensor mat2)
         Consider using one of the following signatures instead:
         addmm_(Tensor mat1, Tensor mat2, *, Number beta, Number alpha)
+
+        :param x (Tensor): feature matrix with shape (batch_size, feat_dim)
+        :param labels (Tensor): ground truth labels with shape (batch_size)
+        :return:
         """
+
         batch_size = x.size(0)
         distmat = torch.pow(x, 2).sum(dim=1, keepdim=True).expand(batch_size, self.num_classes) + \
                   torch.pow(self.centers, 2).sum(dim=1, keepdim=True).expand(self.num_classes, batch_size).t()
