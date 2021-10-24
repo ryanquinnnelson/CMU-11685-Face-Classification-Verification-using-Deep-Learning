@@ -50,7 +50,7 @@ been updated from the previous version to enable use with image data and CNNs.
 - For image data (`data_type=image`), expects training and validation datasets to be organized for use
   with `ImageFolder`.
 
-## To Run the Code
+## To Run the Code (face classification)
 
 1. The code for this model consists of the following components:
     - python module `octopus`
@@ -60,7 +60,8 @@ been updated from the previous version to enable use with image data and CNNs.
 2. Activate an environment that contains torch, torchvision, pandas, numpy, and PIL. I used `pytorch_latest_p37`
    environment as part of the Deep Learning AMI for AWS EC2 instances.
 
-3. Define each configuration file as desired. Configuration file options are listed below.
+3. Define each configuration file as desired. Configuration file options are listed below. See configuration file
+   "config_resnet34_r52.txt" as example.
 
 4. If your instance has a mountable storage drive `/dev/nvme1n1`, execute the bash script to mount the drive and change
    permissions to allow the user to write to directories inside the drive.
@@ -76,10 +77,62 @@ $ bash mount_drive.sh
 $ python run_octopus.py path/to/config_directory
 ```
 
+## To Run the Code (face verification)
+
+See configuration file "config_resnet34_r52verification-79.txt" as example.
+
+1. All the same steps as face classification
+2. Define `competition` in configuration file to the verification competition.
+3. Define checkpoint to load pretrained model.
+4. Define `data_dir` to point to verification content directory.
+5. Define `model_type=Resnet34_v5` to get correct embedding.
+
+## Running `octopus` on AWS
+
+1. Launch EC2 instance with `Deep Learning AMI (Ubuntu 18.04) Version 51.0` and `g4dn.2xlarge` instance type.
+
+2. Compress the project directory containing all code.
+
+3. Send the code and `kaggle.json` file to the EC2 instance.
+
+```bash
+# copy over code
+scp -i /path/to/pem/file.pem /path/to/code/CMU-11685-HW2P2.zip ubuntu@18.217.128.133:/home/ubuntu
+
+# copy over json file
+scp -i /path/to/pem/file.pem /path/to/file/kaggle.json ubuntu@18.217.128.133:/home/ubuntu
+```
+
+4. Log in, unzip code, and mount drive.
+
+```bash
+ssh -i /path/to/pem/file.pem ubuntu@18.217.128.133 
+```
+
+5. Use `screen` to multiplex the terminal so training can be moved to the background after starting.
+
+```bash
+screen -S any_name_you_want
+```
+
+6. Activate desired environment inside this multiplex terminal.
+
+```bash
+# activate conda environment
+conda activate pytorch_latest_p37
+```
+
+7. Execute the wrapper for `octopus`.
+
+```bash
+python ~/CMU-11685-HW2P2/run_octopus.py /home/ubuntu/CMU-11685-HW2P2/configs/remote
+```
+
+8. Move terminal to the background using `CTRL+A, CTRL+D` and log out of remote server.
+
 ## Configuration File Options
 
-Configurations must be parsable by `configparser`. To use the verification feature in this repository, set the
-competition to the verification one.
+Configurations must be parsable by `configparser`.
 
 ```text
 [DEFAULT]
@@ -123,7 +176,7 @@ output_dir = /home/ubuntu/output         # fully qualified directory where test 
 num_workers=8                                                            # number of workers for use in DataLoader when a GPU is available
 pin_memory=True                                                          # whether to use pin memory in DataLoader when a GPU is available
 batch_size=256                                                           # batch size regardless of a GPU or CPU
-transforms_list=RandomHorizontalFlip,RandomRotation,ToTensor,Normalize   # for image data, the list of transforms to perform and in what order
+transforms_list=RandomHorizontalFlip,RandomRotation,ToTensor,Normalize   # for image data, the list of transforms to perform on the training set and in what order
 
 [model]
 model_type=Resnet34_v3     # which predefined model to use for training (check modelhandlers for possible options)
@@ -169,7 +222,7 @@ Given the understanding that certain aspects of a deep learning model must be cu
 relies on the user having defined a `customized` python module to manage these aspects. To work smoothly with `octopus`
 , `customized` must contain the following files and classes. An example `customized` module is provided with this code.
 
-### datasets.py
+#### datasets.py
 
 For image data, if training and validation datasets are formatted to facilitate using `ImageFolder`:
 
@@ -191,15 +244,43 @@ For other data:
     - `__len__() -> int`
     - `__getitem__() -> Tensor`
 
-### evaluation.py
+#### evaluation.py
 
 - `Evaluation` class implementing the following methods:
     - `__init__(self, val_loader, criterion_func, devicehandler)`
     - `evaluate_model(self, epoch, num_epochs, model) -> (val_loss, val_metric)`
 
-### formatters.py
+#### formatters.py
 
 - `OutputFormatter` class implementing the following methods:
     - `__init__(self, data_dir)`
     - `format_output(self, out) -> DataFrame`
+
+## How octopus is used in this project
+
+This project uses CNNs to perform two different tasks: (1) face classification; (2) face verification.
+
+### Face Classification (kaggle competition)
+
+For this section, we were given a number of training images (380k) , validation images (8k), and test images (8k), and
+asked to train a CNN model to classify the faces into one of 4000 classes. Images were already preprocessed to center on
+the faces. Training and validation images were organized for use with `ImageFolder`.
+
+I implemented a number of CNN and Resnet models and performed manual hyperparameter tuning. I customized
+the `customized` python module used by `octopus` for this image dataset. Model output was the class for each record, and
+I formatted this output for submission to kaggle.
+
+The highest accuracy I achieved on the private leaderboard in kaggle was 80.767% (rank 104/302).
+
+### Face Verification (kaggle competition)
+
+For this section, we were given a number of images (69k) and a list of 8800 image pairs to compare. The goal was to
+determine the similarity of the pair of faces, using some distance metric, in order to determine if the two images
+represented the same person.
+
+I used the pretrained model that achieved the highest face classification accuracy for face verification. After loading
+the pretrained model, I obtained the feature embedding for each image in the image pair, then calculated distance using
+cosine similarity. I formatted this output for submission to kaggle.
+
+The highest AUC I achieved on the private leaderboard in kaggle was 0.92125 (rank 89/300).
 
