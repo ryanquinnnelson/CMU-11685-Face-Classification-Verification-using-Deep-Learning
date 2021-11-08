@@ -65,7 +65,7 @@ transforms_list=RandomHorizontalFlip,RandomRotation,ToTensor,Normalize
 
 
 [model]
-model_type=Resnet34
+model_type=Resnet34_v3
 in_features = 3
 num_classes = 4000
 
